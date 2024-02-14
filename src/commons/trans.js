@@ -29,23 +29,4 @@ trans.interceptors.response.use(
   }
 );
 
-// 요청 인터셉터 추가
-trans.interceptors.request.use(
-  (config) => {
-    // 특정 URL에 대한 토큰 체크
-    if (config.url !== '/api/login' && config.url !== '/api/join') {
-      const authToken = localStorage.getItem('authToken');
-      if (authToken) {
-        config.headers.Authorization = `Bearer ${authToken}`;
-      } else {
-        window.location.href = '/login';
-      }
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
 export default trans;

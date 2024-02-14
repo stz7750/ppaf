@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import trans from '../commons/trans';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 function Join(props) {
+    const Navigate = useNavigate();
     const [user, setUser] = useState({
         id: '',
         email: '',
@@ -35,7 +36,7 @@ function Join(props) {
             Navigate('/login');
             
         } catch (error) {
-            console.error("회원가입 실패:", error.response.data);
+            console.error("회원가입 실패:", error);
             alert('회원가입 실패!');
         }
     };

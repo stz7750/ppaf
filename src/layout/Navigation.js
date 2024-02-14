@@ -3,8 +3,8 @@ import { Container, Navbar, Nav } from 'react-bootstrap';
 
 function Navigation(props) {
 
-    userId: userInfo.userId, accessToken: JSON.parse(localStorage.getItem('accessToken')).value 
-    
+    /* userId: userInfo.userId, accessToken: JSON.parse(localStorage.getItem('accessToken')).value  */
+
     return (
         <>
          <Navbar bg="light" expand="lg">
@@ -14,13 +14,12 @@ function Navigation(props) {
             <Nav className="mr-auto">
                 <Nav.Link href="/Calendar">캘린더</Nav.Link>
                 <Nav.Link href="/Toast">알림</Nav.Link>
-                {/* 추가적인 네비게이션 링크를 여기에 추가할 수 있습니다. */}
             </Nav>
             </Navbar.Collapse>
         </Navbar>
         <Container>
             {props.children}
-        </Container>   
+        </Container>
         </>
     );
 }
