@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import trans from '../commons/trans';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../redux/userSlice';
 
 function Login() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const navigateToJoin = () => {
     navigate('/join');
@@ -20,6 +23,11 @@ function Login() {
                 if (response.data) {
                   localStorage.setItem('authToken', response.data.token);
                   console.log('로그인 성공:', response.data.message);
+                  dispatch(loginSuccess({
+                    user: { id },
+                    token: response.data.token,
+                  }));
+                  navigate("/main")
                 } else {
                   console.error('로그인 실패: 서버 응답이 없음');
                 }
