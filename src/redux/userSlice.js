@@ -1,23 +1,27 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const initialState = {
+  id : '',
+  pw : ''
+}
+
 export const userSlice = createSlice({
   name: 'user',
-  initialState: {
-    userInfo: null,
-    authToken: '',
-  },
-  reducers: {
-    loginSuccess: (state, action) => {
-      state.userInfo = action.payload.user;
-      state.authToken = action.payload.token;
+  initialState: initialState,
+  reducers : {
+    login : (state, action) => {
+      console.log("login했다.");
+      console.log(action.payload);
+      console.log("---------------------")
+      return {id : action.payload.id, pw : action.payload.pw}
     },
-    logout: (state) => {
-      state.userInfo = null;
-      state.authToken = '';
-    },
-  },
+    logout : () => {
+      console.log("logout했다.");
+      return {...initialState}
+    }
+  }
 });
 
-export const { loginSuccess, logout } = userSlice.actions;
+export const { login, logout } = userSlice.actions;
 
 export default userSlice.reducer;
