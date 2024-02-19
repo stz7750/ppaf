@@ -1,9 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navbar, Nav, Container, Row, Col, Button, Card, Carousel } from 'react-bootstrap';
 import Navigation from '../layout/Navigation';
+import trans from '../commons/trans';
+import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 function Main(props) {
+  
+  const SERVICE_KEY = process.env.REACT_APP_SERVICE_KEY;
+  const [cardData, setCardData] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await trans.get('admin/api/news');
+        const apiRes = await trans.get(`https://api.odcloud.kr/api/15086437/v1/uddi:2a82ac44-e17a-4919-ab5d-a25ba16af19c?serviceKey=${SERVICE_KEY}&page=1&perPage=10&returnType=JSON`)
+    
+        if (res.data) {
+          console.table(res.data);
+          console.table(apiRes.data);
+          setCardData(apiRes.data); // 받은 데이터를 cardData에 설정합니다.
+          console.log(cardData);
+        } else {
+          toast.warning("데이터 통신 실패~");
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("데이터 가져오기 실패!");
+      }
+    }
+    fetchData();
+  }, []);
+      
+  
     return (
+      <>
         <Navigation>
          <Row>
           <Col>
@@ -24,20 +55,24 @@ function Main(props) {
           </Col>
         </Row>
         <Row style={{ marginTop: '20px' }}>
-          <Col md={4}>
-            <Card>
-              <Card.Img variant="top" src="https://via.placeholder.com/300x200" />
-              <Card.Body>
-                <Card.Title>뉴스 제목</Card.Title>
-                <Card.Text>
-                  뉴스 요약 내용이 여기에 들어갑니다.
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-          {/* 추가 카드로 뉴스 섹션을 확장할 수 있습니다. */}
+          {cardData.data?.map(card => (
+            <Col md={4} key={card.id}>
+              <Link to={`${card.원본주소}`} style={{ textDecoration: "none"}}>
+                <Card style={{ marginTop: '20px' }}>
+                  <Card.Img variant="top" src={card.image ? card.image : "https://via.placeholder.com/300x200"} />
+                  <Card.Body>
+                    <Card.Title style={{ fontSize: '20px', fontWeight: 'bold' }}>{card.제목}</Card.Title>
+                    <Card.Text style={{ fontSize: '14px' }}>{card.본문.length > 20 ? card.본문.substring(0,19) + '......' : card.본문}</Card.Text>
+                    <Card.Text>{card.언론사 ? card.언론사 : '없음ㅋㅋ'}</Card.Text>
+                    <Card.Text>{card.일자}</Card.Text>
+                  </Card.Body>
+                </Card>
+              </Link>
+            </Col>
+          ))}
         </Row>
         </Navigation>
+      </>
     );
 }
 

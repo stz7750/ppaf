@@ -7,6 +7,8 @@ import Toast from  './pages/Toast';
 import Calendar from './pages/Calendar';
 import BigCalendar from './pages/BigCalendar';
 import Main from './pages/Main';
+import Admin from './adminpages/Admin';
+import Admins from './adminpages/Admins';
 
 
 
@@ -20,6 +22,8 @@ function App() {
         <Route path="/Calendar" element={<Calendar></Calendar>} />
         <Route path="/BigCalendar" element={<BigCalendar />} />
         <Route path="/main" element={<Main/>}/>
+        <Route path="/admin/main" element={<Admin/>}/>
+        <Route path="/admin/main2" element={<Admins />}/>
       </Routes>
     </Router>
   );
