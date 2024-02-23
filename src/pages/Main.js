@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar, Nav, Container, Row, Col, Button, Card, Carousel } from 'react-bootstrap';
-import Navigation from '../layout/Navigation';
+
 import trans from '../commons/trans';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import Navigation from '../layout/Navigation';
 
 function Main(props) {
   
@@ -55,8 +56,8 @@ function Main(props) {
           </Col>
         </Row>
         <Row style={{ marginTop: '20px' }}>
-          {cardData.data?.map(card => (
-            <Col md={4} key={card.id}>
+          {cardData.data?.map((card, idx) => (
+            <Col md={4} key={idx}>
               <Link to={`${card.원본주소}`} style={{ textDecoration: "none"}}>
                 <Card style={{ marginTop: '20px' }}>
                   <Card.Img variant="top" src={card.image ? card.image : "https://via.placeholder.com/300x200"} />

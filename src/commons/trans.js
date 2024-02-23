@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 기본 URL 설정을 포함한 커스텀 axios 인스턴스 생성
 const trans = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://localhost:8888',
 });
 
 // axios의 이름 변경

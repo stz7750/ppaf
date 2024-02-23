@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import trans from '../commons/trans';
 import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import Navigation from '../layout/Navigation';
 
 function Join(props) {
@@ -13,7 +13,6 @@ function Join(props) {
         password: '',
         name: '',
     });
-    
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUser((prevUser) => ({
@@ -24,6 +23,26 @@ function Join(props) {
     
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const emailRegex = /\S+@\S+\.\S+/;
+        const reg = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/;
+
+        // 필수 필드 검사
+        if (!user.id || !user.email || !user.password || !user.name) {
+            toast.error('모든 필드를 채워주세요.');
+            return;
+        }
+
+        if (!emailRegex.test(user.email)) {
+            toast.error('유효하지 않은 이메일 형식입니다.');
+            return;
+        }
+
+        // 비밀번호 길이 검사
+        if (!reg.test(user.password)) {
+            toast.error('비밀번호는 영문, 숫자, 특수문자를 포함한 8자 이상 15자 이하로 설정해주세요.');
+            return;
+        }
         const userData = {
             id: user.id,
             email: user.email,
@@ -32,7 +51,6 @@ function Join(props) {
         };
       
         try {
-            // 'trans.put' 메소드를 사용하여 서버에 PUT 요청을 보냅니다.
             await trans.put('/api/join', userData);
             toast.success('회원가입 성공! 로그인 페이지로 이동합니다.');
             Navigate('/login');
@@ -44,6 +62,16 @@ function Join(props) {
 
     return (
         <Navigation>
+            <ToastContainer position="top-center"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"/>
             <Container className="mt-5">
                 <Row className="justify-content-md-center">
                     <Col xs={12} md={6}>

@@ -36,6 +36,12 @@ export const options = {
       text: 'Chart.js Bar Chart',
     },
   },
+  scales: {
+    y: {
+      suggestedMin: 0, // 최소값
+      suggestedMax: 10, // 최대값
+    },
+  },
 };
 function Admin(props) {
     const [chartData, setChartData] = useState({});

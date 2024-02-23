@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { toast } from 'react-toastify';
 
 const initialState = {
   id : '',
@@ -10,10 +11,7 @@ export const userSlice = createSlice({
   initialState: initialState,
   reducers : {
     login : (state, action) => {
-      console.log("login했다.");
-      console.log(action.payload);
-      console.log("---------------------")
-      return {id : action.payload.id, pw : action.payload.pw}
+      return {id : action.payload.id, pw : action.payload.pw, meessage : toast.warning("로그인 성공")}
     },
     logout : () => {
       console.log("logout했다.");

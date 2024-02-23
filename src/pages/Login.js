@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import trans from '../commons/trans';
 import { useNavigate } from 'react-router-dom';
@@ -6,13 +6,15 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Navigation from '../layout/Navigation';
+
 import axios from 'axios';
 import { login } from '../redux/userSlice';
+import Navigation from '../layout/Navigation';
 
 function Login() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
+  const [btnDis, setBtnDis] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -21,7 +23,13 @@ function Login() {
   }
   const login2 = useSelector(state => state.userSlice);
   console.log(login2,"asdwqdqdqdwwqdwq");
-
+  useEffect(() => {
+    if(id === '' || password === '') {
+      setBtnDis(true);
+    }else{
+      setBtnDis(false);
+    }
+  })
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = new FormData();
@@ -38,10 +46,10 @@ function Login() {
           }));
           navigate("/main")
         } else {
-          console.error('로그인 실패: 서버 응답이 없음');
+          toast.error('로그인 실패: 서버 응답이 없음');
         }
       } catch (error) {
-          console.error(error);
+          toast.error(error);
       }
   };
   return (
@@ -72,7 +80,7 @@ function Login() {
     />
   </Form.Group>
 
-  <Button variant="primary" type="submit">
+  <Button variant="primary" type="submit" disabled={btnDis}>
     Login
   </Button>
 </Form>
