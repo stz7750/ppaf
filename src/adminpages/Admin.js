@@ -14,6 +14,7 @@ import {
 } from 'chart.js'
 import Chart from 'chart.js/auto';
 import Navigation from '../layout/Navigation';
+import GlobalModal from '../commons/GlobalModal';
 
 ChartJS.register(
   CategoryScale,
@@ -50,6 +51,7 @@ function Admin(props) {
     const [events, setEvents] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [eventsPerPage] = useState(5); // 페이지 당 표시할 이벤트 수
+    const [show , setShow] = useState(false);
 
     
     const fetchEventData = async (cno) => {
@@ -111,6 +113,7 @@ function Admin(props) {
       
 
       return (
+        <>
         <Container fluid style={{ maxHeight: '500px', overflowY: 'auto' }}>
           <Row>
           <Col md={6} className="mb-4">
@@ -128,6 +131,7 @@ function Admin(props) {
           </Col>
           <Col md={12}>
               <h4 className="mb-3">이벤트</h4>
+              <Button onClick={() => setShow(true)}>열기</Button>
               <Table striped bordered hover>
                 <thead>
                   <tr>
@@ -138,30 +142,28 @@ function Admin(props) {
                   </tr>
                 </thead>
                 <tbody>
-                  {events.map((event, index) => (
+                  {events?.map((event, index) => (
                     <tr key={event.eventId}>
                       <td>{index + 1}</td>
                       <td>{event.title}</td>
                       <td>{`${event.bngnDt ?? '시작 날짜 없음'} ~ ${event.endDt ?? '종료 날짜 없음'}`}</td>
-                      <td>{event.editor} </td>
+                      <td>{event?.editor} </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
               <Pagination>
-                <Pagination.First onClick={() => paginate(1)} />
-                <Pagination.Prev onClick={() => paginate(Math.max(1, currentPage - 1))} />
-                {pageNumbers?.map(number => (
-                    <Pagination.Item key={number} active={number === currentPage} onClick={() => paginate(number)}>
-                        {number}
-                    </Pagination.Item>
-                ))}
-                <Pagination.Next onClick={() => paginate(Math.min(pageNumbers.length, currentPage + 1))} />
-                <Pagination.Last onClick={() => paginate(pageNumbers.length)} />
-            </Pagination>
+                        {pageNumbers.map(number => (
+                            <Pagination.Item key={number} active={number === currentPage} onClick={() => paginate(number)}>
+                                {number}
+                            </Pagination.Item>
+                        ))}
+                    </Pagination>
             </Col>
           </Row>
         </Container>
+        <GlobalModal show={show} setShow={setShow} title={"모달 테스트"} data={{data1 : 'val1', data2 : 'val2'}}/>
+        </>
     );
 }
 
