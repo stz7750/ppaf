@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Line, Bar } from 'react-chartjs-2';
-import { Container, Row, Col, Button, Tabs, Tab } from 'react-bootstrap';
+import { Container, Row, Col, Button, Tabs, Tab, ListGroup, Table, Pagination } from 'react-bootstrap';
 import trans from '../commons/trans';
 import {
   Chart as ChartJS,
@@ -33,7 +33,7 @@ export const options = {
     },
     title: {
       display: true,
-      text: 'Chart.js Bar Chart',
+      text: '접속자 분석 차트',
     },
   },
   scales: {
@@ -47,14 +47,24 @@ function Admin(props) {
     const [chartData, setChartData] = useState({});
     const [chartType, setChartType] = useState('daily');
     const [isLoading, setIsLoading] = useState(true);
+    const [events, setEvents] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [eventsPerPage] = useState(5); // 페이지 당 표시할 이벤트 수
 
     
-
+    const fetchEventData = async (cno) => {
+      try {
+          const response = await trans.get(`/admin/api/news${cno ? `/${cno}` : ''}`);
+          setEvents(response.data); // 뉴스 데이터 상태 업데이트
+          console.table(response.data);
+      } catch (error) {
+          console.error('뉴스 데이터를 불러오는 중 에러 발생:', error);
+      }
+  };
     const fetchData = async (type) => {
         try {
           const response = await trans.get(`/admin/api/loginCounts/${type}`);
           const data = response.data;
-          console.log(data,"asdwqdwqdqwfqfwqfq");
           const chartData = {
             labels: data.map(item => item.date),
             datasets: [{
@@ -68,41 +78,90 @@ function Admin(props) {
     
           setChartData(chartData);
         } catch (error) {
-          console.error('Error fetching chart data:', error);
+          console.error('에러 발생 여기:', error);
         }
     };
+    useEffect(() => {
+      console.log(`현재 페이지: ${currentPage}, 이벤트 총 개수: ${events.length}, 페이지당 이벤트 수: ${eventsPerPage}`);
+  }, [currentPage, events]);
+  
     
     useEffect(() => {
         fetchData(chartType).then(() => setIsLoading(false));
+
       }, [chartType]);
+
+    useEffect(() =>{
+      fetchEventData().then(()=> setIsLoading(false));
+    },[])
       
       if (isLoading) {
         return <div>Loading...</div>;
       }
-    
+      const indexOfLastEvent = currentPage * eventsPerPage;
+      const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+      const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
+
+      // 페이지 번호를 계산하기 위한 로직
+      const pageNumbers = [];
+      for (let i = 1; i <= Math.ceil(events.length / eventsPerPage); i++) {
+          pageNumbers.push(i);
+      }
+      const paginate = (pageNumber) => setCurrentPage(pageNumber);
+      
+
       return (
-      <Navigation>
-        <Container fluid>
+        <Container fluid style={{ maxHeight: '500px', overflowY: 'auto' }}>
           <Row>
-            <Col md={6} className="mb-4">
-              <div className="d-flex flex-column">
-                <div className="d-flex justify-content-around mb-2">
-                  <Button variant="primary" onClick={() => setChartType('daily')}>Daily</Button>
-                  <Button variant="secondary" onClick={() => setChartType('monthly')}>Monthly</Button>
-                  <Button variant="success" onClick={() => setChartType('yearly')}>Yearly</Button>
-                </div>
-                <div style={{width : '600px'}}>
-                    <Bar data={chartData} options={options} />
-                </div>
+          <Col md={6} className="mb-4">
+            <div className="d-flex flex-column">
+              <div className="d-flex justify-content-around mb-2">
+                <Button variant="primary" onClick={() => setChartType('daily')}>Daily</Button>
+                <Button variant="secondary" onClick={() => setChartType('monthly')}>Monthly</Button>
+                <Button variant="success" onClick={() => setChartType('yearly')}>Yearly</Button>
               </div>
+              {/* 고정 너비를 제거하고 반응형 디자인 적용 */}
+              <div>
+                <Bar data={chartData} options={options} />
+              </div>
+            </div>
+          </Col>
+          <Col md={12}>
+              <h4 className="mb-3">이벤트</h4>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>이벤트명</th>
+                    <th>이벤트 기간</th>
+                    <th>등록자</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {events.map((event, index) => (
+                    <tr key={event.eventId}>
+                      <td>{index + 1}</td>
+                      <td>{event.title}</td>
+                      <td>{`${event.bngnDt ?? '시작 날짜 없음'} ~ ${event.endDt ?? '종료 날짜 없음'}`}</td>
+                      <td>{event.editor} </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+              <Pagination>
+                <Pagination.First onClick={() => paginate(1)} />
+                <Pagination.Prev onClick={() => paginate(Math.max(1, currentPage - 1))} />
+                {pageNumbers?.map(number => (
+                    <Pagination.Item key={number} active={number === currentPage} onClick={() => paginate(number)}>
+                        {number}
+                    </Pagination.Item>
+                ))}
+                <Pagination.Next onClick={() => paginate(Math.min(pageNumbers.length, currentPage + 1))} />
+                <Pagination.Last onClick={() => paginate(pageNumbers.length)} />
+            </Pagination>
             </Col>
-            {/* 다른 컨텐츠를 위한 공간 */}
-            <Col md={6}> {/* 오른쪽 상단 컨텐츠 */} </Col>
-            <Col md={6}> {/* 왼쪽 하단 컨텐츠 */} </Col>
-            <Col md={6}> {/* 오른쪽 하단 컨텐츠 */} </Col>
           </Row>
         </Container>
-      </Navigation>
     );
 }
 

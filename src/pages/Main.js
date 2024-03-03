@@ -5,12 +5,15 @@ import trans from '../commons/trans';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import Navigation from '../layout/Navigation';
+import AdminNavigation from '../layout/AdminNavigation';
+import { useSelector } from 'react-redux';
 
 function Main(props) {
   
   const SERVICE_KEY = process.env.REACT_APP_SERVICE_KEY;
   const [cardData, setCardData] = useState([]);
-
+  const login = useSelector(state => state.user);
+  console.log(login,"여기가 당신의 로그인");
   useEffect(() => {
     async function fetchData() {
       try {
@@ -36,7 +39,6 @@ function Main(props) {
   
     return (
       <>
-        <Navigation>
          <Row>
           <Col>
             <Carousel>
@@ -72,7 +74,6 @@ function Main(props) {
             </Col>
           ))}
         </Row>
-        </Navigation>
       </>
     );
 }

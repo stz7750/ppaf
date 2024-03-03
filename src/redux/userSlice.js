@@ -3,7 +3,8 @@ import { toast } from 'react-toastify';
 
 const initialState = {
   id : '',
-  pw : ''
+  pw : '',
+  role : ''
 }
 
 export const userSlice = createSlice({
@@ -11,7 +12,7 @@ export const userSlice = createSlice({
   initialState: initialState,
   reducers : {
     login : (state, action) => {
-      return {id : action.payload.id, pw : action.payload.pw, meessage : toast.warning("로그인 성공")}
+      return {id : action.payload.id, pw : action.payload.pw, role: action.payload.role, meessage : toast.warning("로그인 성공")}
     },
     logout : () => {
       console.log("logout했다.");

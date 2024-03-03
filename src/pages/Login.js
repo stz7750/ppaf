@@ -39,10 +39,12 @@ function Login() {
         const response = await trans.post('/api/login', form); // 서버로 POST 요청을 보냅니다.
         // 로그인 성공 처리...
         if (response.data) {
-          localStorage.setItem('authToken', response.data.token);
+          console.log(response.data,"지금부터 여기 이용");
+          localStorage.setItem('authToken', response.data.accessToken);
           dispatch(login({
             id
             ,pw: password
+            ,role : response.data.role
           }));
           navigate("/main")
         } else {
@@ -53,7 +55,6 @@ function Login() {
       }
   };
   return (
-    <Navigation>
     <Container className="mt-5">
       <Row className="justify-content-md-center">
         <Col xs={12} md={6}>
@@ -98,7 +99,6 @@ function Login() {
       pauseOnHover
       theme="light"/>
     </Container>
-    </Navigation>
   );
 }
 

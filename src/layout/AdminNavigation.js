@@ -1,16 +1,11 @@
 import React from 'react';
-import { Container, Navbar, Nav, Breadcrumb } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import userSlice, { logout } from '../redux/userSlice';
-import { useLocation } from 'react-router-dom'; 
+import { useLocation } from 'react-router-dom';
+import { logout } from '../redux/userSlice';
+import { Breadcrumb, Container, Nav, Navbar } from 'react-bootstrap';
 import Footer from './Footer';
 
-
-function Navigation(props) {
-
-    const naviStyle = {
-        zIndex : 10
-    };
+function AdminNavigation(props) {
     const login = useSelector(state => state.user);
     const dispatch = useDispatch();
     const location = useLocation();
@@ -56,7 +51,7 @@ function Navigation(props) {
 
     return (
         <>
-         <Navbar bg="light" expand="lg" style={naviStyle}>
+         <Navbar bg="light" expand="lg">
             <Navbar.Brand href="/main">안녕하세요 {login.id}님!</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
@@ -94,7 +89,7 @@ function Navigation(props) {
         </Container>
         <Footer />
         </>
-    );
+    )
 }
 
-export default Navigation;
+export default AdminNavigation;

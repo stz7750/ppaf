@@ -5,7 +5,6 @@ import Navigation from '../layout/Navigation';
 
 function Admins(props) {
     return (
-      <Navigation>
       <div>
           <Container fluid>
             <Row>
@@ -58,7 +57,6 @@ function Admins(props) {
             </Row>
           </Container>
       </div>
-      </Navigation>
   );
 
 }
