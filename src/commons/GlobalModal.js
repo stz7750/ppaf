@@ -5,6 +5,7 @@ function GlobalModal(props) {
     return (
         <Modal show={props.show} onHide={()=> props.setShow(false)}>
             <Modal.Header closeButton>
+                <img src=''/>
                 <Modal.Title>{props.title}</Modal.Title>
             </Modal.Header>
             <Modal.Body>

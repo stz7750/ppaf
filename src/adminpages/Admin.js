@@ -152,13 +152,13 @@ function Admin(props) {
                   ))}
                 </tbody>
               </Table>
-              <Pagination>
+              {/* <Pagination>
                         {pageNumbers.map(number => (
                             <Pagination.Item key={number} active={number === currentPage} onClick={() => paginate(number)}>
                                 {number}
                             </Pagination.Item>
                         ))}
-                    </Pagination>
+              </Pagination> */}
             </Col>
           </Row>
         </Container>
