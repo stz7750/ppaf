@@ -56,7 +56,7 @@ function Admin(props) {
     
     const fetchEventData = async (cno) => {
       try {
-          const response = await trans.get(`/admin/api/news${cno ? `/${cno}` : ''}`);
+          const response = await trans.get(`/admin/api/news`);
           setEvents(response.data); // 뉴스 데이터 상태 업데이트
           console.table(response.data);
       } catch (error) {
@@ -86,16 +86,24 @@ function Admin(props) {
     useEffect(() => {
       console.log(`현재 페이지: ${currentPage}, 이벤트 총 개수: ${events.length}, 페이지당 이벤트 수: ${eventsPerPage}`);
   }, [currentPage, events]);
-  
-    
-    useEffect(() => {
-        fetchData(chartType).then(() => setIsLoading(false));
 
-      }, [chartType]);
 
-    useEffect(() =>{
-      fetchEventData().then(()=> setIsLoading(false));
-    },[])
+  useEffect(() => {
+    // 컴포넌트 마운트 시 데이터 로드
+    const initData = async () => {
+      await fetchData(chartType);
+      await fetchEventData();
+      setIsLoading(false);
+    };
+
+    initData();
+  }, []); // 의존성 배열을 빈 배열로 설정하여 컴포넌트 마운트 시 한 번만 호출
+
+  useEffect(() => {
+    // chartType이 변경될 때마다 데이터를 다시 로드
+    fetchData(chartType);
+  }, [chartType]);
+
       
       if (isLoading) {
         return <div>Loading...</div>;
@@ -132,27 +140,31 @@ function Admin(props) {
           <Col md={12}>
               <h4 className="mb-3">이벤트</h4>
               <Button onClick={() => setShow(true)}>열기</Button>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>이벤트명</th>
-                    <th>이벤트 기간</th>
-                    <th>등록자</th>
+            <Table striped bordered hover>
+              <thead>
+              <tr>
+                <th>#</th>
+                <th>이벤트명</th>
+                <th>등록 날짜</th>
+                <th>등록자</th>
+                <th>시작 날짜</th>
+                <th>종료 날짜</th>
+              </tr>
+              </thead>
+              <tbody>
+              {events.map((event) => (
+                  <tr key={event.eventId}>
+                    <td>{event.eventId}</td>
+                    <td>{event.title}</td>
+                    <td>{event.regDt}</td>
+                    <td>{event.editor}</td>
+                    <td>{event.bngnDt || '정보 없음'}</td> {/* 시작 날짜가 없는 경우 '정보 없음' 표시 */}
+                    <td>{event.endDt || '정보 없음'}</td> {/* 종료 날짜가 없는 경우 '정보 없음' 표시 */}
                   </tr>
-                </thead>
-                <tbody>
-                  {events?.map((event, index) => (
-                    <tr key={event.eventId}>
-                      <td>{index + 1}</td>
-                      <td>{event.title}</td>
-                      <td>{`${event.bngnDt ?? '시작 날짜 없음'} ~ ${event.endDt ?? '종료 날짜 없음'}`}</td>
-                      <td>{event?.editor} </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-              {/* <Pagination>
+              ))}
+              </tbody>
+            </Table>
+            {/* <Pagination>
                         {pageNumbers.map(number => (
                             <Pagination.Item key={number} active={number === currentPage} onClick={() => paginate(number)}>
                                 {number}

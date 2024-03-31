@@ -22,7 +22,6 @@ function Login() {
     navigate('/join');
   }
   const login2 = useSelector(state => state.userSlice);
-  console.log(login2,"asdwqdqdqdwwqdwq");
   useEffect(() => {
     if(id === '' || password === '') {
       setBtnDis(true);

@@ -21,12 +21,9 @@ function Main(props) {
         const apiRes = await trans.get(`https://api.odcloud.kr/api/15086437/v1/uddi:2a82ac44-e17a-4919-ab5d-a25ba16af19c?serviceKey=${SERVICE_KEY}&page=1&perPage=10&returnType=JSON`)
     
         if (res.data) {
-          console.table(res.data);
-          console.table(apiRes.data);
           setCardData(apiRes.data); // 받은 데이터를 cardData에 설정합니다.
-          console.log(cardData);
         } else {
-          toast.warning("데이터 통신 실패~");
+          toast.warning("데이터 통신 실패");
         }
       } catch (error) {
         console.error(error);

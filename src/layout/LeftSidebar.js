@@ -25,7 +25,6 @@ function LeftSidebar() {
               } else {
                 menuTree.push(menuItemsMap[menu.menu_id]);
               }
-            console.table(menuTree);
             setMenuData(menuTree);
         })
       } catch (error) {
