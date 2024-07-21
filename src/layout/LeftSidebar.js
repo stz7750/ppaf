@@ -8,25 +8,27 @@ function LeftSidebar() {
   useEffect(() => {
     (async () => {
       try {
-            const response = await trans.get("admin/api/getMenu");
-            const menuData = response.data;
-            const menuTree = [];
-            const menuItemsMap = {};
+        const response = await trans.get('admin/api/getMenu');
+        const menuData = response.data;
+        const menuTree = [];
+        const menuItemsMap = {};
 
-            // 메뉴 항목을 id를 키로 사용하는 맵으로 변환하여 접근성 향상
-            menuData.forEach(menu => {
-              menuItemsMap[menu.menu_id] = { ...menu, children: [] };
-            });
+        // 메뉴 항목을 id를 키로 사용하는 맵으로 변환하여 접근성 향상
+        menuData.forEach((menu) => {
+          menuItemsMap[menu.menu_id] = { ...menu, children: [] };
+        });
 
-            // 각 메뉴 항목에 대해 상위 메뉴가 있다면 그 메뉴의 자식으로, 없다면 최상위 메뉴로 처리
-            menuData.forEach(menu => {
-              if (menu.parent_menu_id) {
-                menuItemsMap[menu.parent_menu_id].children.push(menuItemsMap[menu.menu_id]);
-              } else {
-                menuTree.push(menuItemsMap[menu.menu_id]);
-              }
-            setMenuData(menuTree);
-        })
+        // 각 메뉴 항목에 대해 상위 메뉴가 있다면 그 메뉴의 자식으로, 없다면 최상위 메뉴로 처리
+        menuData.forEach((menu) => {
+          if (menu.parent_menu_id) {
+            menuItemsMap[menu.parent_menu_id].children.push(
+              menuItemsMap[menu.menu_id],
+            );
+          } else {
+            menuTree.push(menuItemsMap[menu.menu_id]);
+          }
+          setMenuData(menuTree);
+        });
       } catch (error) {
         console.log(error);
       }
@@ -60,16 +62,19 @@ function LeftSidebar() {
   };
   return (
     <>
-      <Button style={toggleButtonStyle} onClick={() => setSidebarOpen(!isSidebarOpen)}>
+      <Button
+        style={toggleButtonStyle}
+        onClick={() => setSidebarOpen(!isSidebarOpen)}>
         {isSidebarOpen ? '<' : '>'}
       </Button>
       <div style={sidebarStyle}>
-        <Nav defaultActiveKey="/home" className="flex-column" style={{marginTop: "100px"}}>
+        <Nav
+          defaultActiveKey="/home"
+          className="flex-column"
+          style={{ marginTop: '100px' }}>
           {menuData?.map((item) => (
             <div key={item.menu_id}>
-              <Nav.Link href={`/${item.menu_path}`}>
-                {item.menu_name}
-              </Nav.Link>
+              <Nav.Link href={`/${item.menu_path}`}>{item.menu_name}</Nav.Link>
               {item.children.length > 0 && (
                 <div style={{ marginLeft: 20 }}>
                   {item.children.map((child) => (
@@ -84,9 +89,7 @@ function LeftSidebar() {
         </Nav>
       </div>
       {/* 사이드바의 상태에 따라 조정되는 본문 컨텐츠 영역, contentStyle 적용 */}
-      <div style={contentStyle}>
-        {/* 실제 컨텐츠 영역 */}
-      </div>
+      <div style={contentStyle}>{/* 실제 컨텐츠 영역 */}</div>
     </>
   );
 }

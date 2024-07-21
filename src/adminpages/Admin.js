@@ -15,6 +15,7 @@ import {
 import Chart from 'chart.js/auto';
 import Navigation from '../layout/Navigation';
 import GlobalModal from '../commons/GlobalModal';
+import {stzUtil} from "../commons/stzUtil";
 
 ChartJS.register(
   CategoryScale,
@@ -156,7 +157,7 @@ function Admin(props) {
                   <tr key={event.eventId}>
                     <td>{event.eventId}</td>
                     <td>{event.title}</td>
-                    <td>{event.regDt}</td>
+                    <td>{stzUtil.dateFormatTs(event.regDt)}</td>
                     <td>{event.editor}</td>
                     <td>{event.bngnDt || '정보 없음'}</td> {/* 시작 날짜가 없는 경우 '정보 없음' 표시 */}
                     <td>{event.endDt || '정보 없음'}</td> {/* 종료 날짜가 없는 경우 '정보 없음' 표시 */}

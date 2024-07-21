@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from 'react-router-dom';
 import Login from './pages/Login';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Join from './pages/Join';
-import Toast from  './pages/Toast';
+import Toast from './pages/Toast';
 import Calendar from './pages/Calendar';
 import BigCalendar from './pages/BigCalendar';
 import Main from './pages/Main';
@@ -16,7 +21,7 @@ import { useSelector } from 'react-redux';
 import AdminNavigation from './layout/AdminNavigation';
 import Spinner from './commons/Spinner';
 import CommonLayout from './layout/CommonLayout';
-
+import MenuManagement from './adminpages/MenuManageMent';
 
 function usePageLoading() {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +32,7 @@ function usePageLoading() {
     // 경로가 변경될 때마다 로딩 상태를 true로 설정하고 3초 후에 false로 설정
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [location]); // location을 의존성 배열에 추가하여 경로 변경 시마다 효과를 다시 실행
@@ -40,24 +45,24 @@ function AppWithRouter() {
 
   return (
     <>
-    <CommonLayout>
-      {isLoading && <Spinner />}
-      <Routes>
+      <CommonLayout>
+        {isLoading && <Spinner />}
+        <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/join" element={<Join />}/>
+          <Route path="/join" element={<Join />} />
           <Route path="/Toast" element={<Toast></Toast>} />
           <Route path="/Calendar" element={<Calendar></Calendar>} />
           <Route path="/BigCalendar" element={<BigCalendar />} />
-          <Route path="/main" element={<Main/>}/>
-          <Route path="/admin/main" element={<Admin/>}/>
-          <Route path="/admin/main2" element={<Admins />}/>
-          <Route path='/admin/Event' element={<RegEvent />}/>
+          <Route path="/main" element={<Main />} />
+          <Route path="/admin/main" element={<Admin />} />
+          <Route path="/admin/main2" element={<Admins />} />
+          <Route path="/admin/Event" element={<RegEvent />} />
+          <Route path="/admin/MenuManageMent" element={<MenuManagement />} />
         </Routes>
-    </CommonLayout>
+      </CommonLayout>
     </>
   );
 }
-
 
 function App() {
   return (
