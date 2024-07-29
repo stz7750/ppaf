@@ -12,20 +12,20 @@
 import React from 'react';
 
 const MenuList = ({ menus, onSelectMenu, onDeleteMenu }) => {
-  return (
-    <div>
-      <h2>Menu List</h2>
-      <ul>
-        {menus.map((menu) => (
-          <li key={menu.menuId}>
-            {menu.menuName}
-            <button onClick={() => onSelectMenu(menu)}>Edit</button>
-            <button onClick={() => onDeleteMenu(menu.menuId)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+	return (
+		<div>
+			<h2>Menu List</h2>
+			<ul>
+				{menus.map(menu => (
+					<li key={menu.menuId}>
+						{menu.menuName}
+						<button onClick={() => onSelectMenu(menu)}>Edit</button>
+						<button onClick={() => onDeleteMenu(menu.menuId)}>Delete</button>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
 };
 
 export default MenuList;

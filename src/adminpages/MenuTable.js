@@ -1,36 +1,22 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTable, useExpanded } from 'react-table';
 
 const MenuTable = ({ menus, onSelectMenu, onDeleteMenu }) => {
-  const data = React.useMemo(() => menus, [menus]);
+  const data = useMemo(() => menus, [menus]);
 
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: 'Menu Name',
-        accessor: 'menuName',
-        Cell: ({ row, value }) => (
-          <span
-            style={{ paddingLeft: `${row.depth * 2}rem` }}
-            onClick={() => row.toggleRowExpanded()}>
-            {row.canExpand ? (row.isExpanded ? '▼' : '▶') : ' '} {value}
-          </span>
-        ),
-      },
-      {
-        Header: 'Actions',
-        Cell: ({ row }) => (
-          <div>
-            <button onClick={() => onSelectMenu(row.original)}>Edit</button>
-            <button onClick={() => onDeleteMenu(row.original.menuId)}>
-              Delete
-            </button>
-          </div>
-        ),
-      },
-    ],
-    [onSelectMenu, onDeleteMenu],
-  );
+  const columns = [
+    {
+      Header: 'Menu Name',
+      accessor: 'menuName',
+      Cell: ({ row, value }) => (
+        <span {...row.getToggleRowExpandedProps()}>
+          {row.isExpanded ? '👇' : '👉'} {value}
+        </span>
+      ),
+    },
+    { Header: 'Menu Path', accessor: 'menuPath' },
+    { Header: 'Path', accessor: 'path' },
+  ];
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
