@@ -10,14 +10,20 @@ function CommonLayout({ children }) {
 	const notR = location.pathname === '/';
 
 	return (
-		<div>
-			<Navigation />
-			<div className="container d-flex">
-				{!notR && <Sidebar />}
-				<main className="flex-grow-1">{children}</main>
-			</div>
-			<Footer />
-		</div>
+		<>
+			{!notR ? (
+				<div>
+					<Navigation />
+					<div className="container d-flex">
+						<Sidebar />
+						<main className="flex-grow-1">{children}</main>
+					</div>
+					<Footer />
+				</div>
+			) : (
+				<>{children}</>
+			)}
+		</>
 	);
 }
 
