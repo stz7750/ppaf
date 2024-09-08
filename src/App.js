@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useLocation,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Join from './pages/Join';
@@ -22,54 +17,57 @@ import AdminNavigation from './layout/AdminNavigation';
 import Spinner from './commons/Spinner';
 import CommonLayout from './layout/CommonLayout';
 import MenuManagement from './adminpages/MenuManageMent';
+import ExampleComponents from './pages/ExampleComponents';
 
 function usePageLoading() {
-  const [isLoading, setIsLoading] = useState(false);
-  const location = useLocation();
+	const [isLoading, setIsLoading] = useState(false);
+	const location = useLocation();
 
-  useEffect(() => {
-    setIsLoading(true);
-    // 경로가 변경될 때마다 로딩 상태를 true로 설정하고 3초 후에 false로 설정
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+	useEffect(() => {
+		setIsLoading(true);
+		// 경로가 변경될 때마다 로딩 상태를 true로 설정하고 3초 후에 false로 설정
+		const timer = setTimeout(() => {
+			setIsLoading(false);
+		}, 1000);
 
-    return () => clearTimeout(timer);
-  }, [location]); // location을 의존성 배열에 추가하여 경로 변경 시마다 효과를 다시 실행
+		return () => clearTimeout(timer);
+	}, [location]); // location을 의존성 배열에 추가하여 경로 변경 시마다 효과를 다시 실행
 
-  return isLoading;
+	return isLoading;
 }
 
 function AppWithRouter() {
-  const isLoading = usePageLoading();
+	const isLoading = usePageLoading();
 
-  return (
-    <>
-      <CommonLayout>
-        {isLoading && <Spinner />}
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/join" element={<Join />} />
-          <Route path="/Toast" element={<Toast></Toast>} />
-          <Route path="/Calendar" element={<Calendar></Calendar>} />
-          <Route path="/BigCalendar" element={<BigCalendar />} />
-          <Route path="/main" element={<Main />} />
-          <Route path="/admin/main" element={<Admin />} />
-          <Route path="/admin/main2" element={<Admins />} />
-          <Route path="/admin/Event" element={<RegEvent />} />
-          <Route path="/admin/MenuManageMent" element={<MenuManagement />} />
-        </Routes>
-      </CommonLayout>
-    </>
-  );
+	return (
+		<>
+			<CommonLayout>
+				{isLoading && <Spinner />}
+				<Routes>
+					<Route path="/" element={<Login />} />
+					<Route path="/join" element={<Join />} />
+					<Route path="/Toast" element={<Toast></Toast>} />
+					<Route path="/Calendar" element={<Calendar></Calendar>} />
+					<Route path="/BigCalendar" element={<BigCalendar />} />
+					<Route path="/main" element={<Main />} />
+					<Route path="/admin/main" element={<Admin />} />
+					<Route path="/admin/main2" element={<Admins />} />
+					<Route path="/admin/Event" element={<RegEvent />} />
+					<Route path="/admin/MenuManageMent" element={<MenuManagement />} />
+					{/* 공통 컴포넌트들을 사용할 페이지*/}
+					<Route path={'/ExampleComponentes'} element={<ExampleComponents />} />
+				</Routes>
+			</CommonLayout>
+		</>
+	);
 }
 
 function App() {
-  return (
-    <Router>
-      <AppWithRouter />
-    </Router>
-  );
+	return (
+		<Router>
+			<AppWithRouter />
+		</Router>
+	);
 }
 
 export default App;
