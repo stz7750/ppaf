@@ -53,7 +53,6 @@ function Join(props) {
 		try {
 			await trans.put('/api/join', userData);
 			toast.success('회원가입 성공! 로그인 페이지로 이동합니다.');
-			Navigate('/login');
 		} catch (error) {
 			toast.warning('회원가입 실패:', error);
 		}

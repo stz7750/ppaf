@@ -10,6 +10,7 @@
  * 7/21/24        stz       최초 생성
  */
 import React, { useState, useEffect } from 'react';
+import { TextField, Button, Select, MenuItem, FormControl, InputLabel, Box } from '@mui/material';
 
 const MenuForm = ({ menu, onSubmit, menus }) => {
 	const [formData, setFormData] = useState({
@@ -48,43 +49,40 @@ const MenuForm = ({ menu, onSubmit, menus }) => {
 
 	const renderMenuOptions = (menus, depth = 0) => {
 		return menus.map(menu => (
-			<React.Fragment key={menu.menuId}>
-				<option value={menu.menuId}>{'--'.repeat(depth) + menu.menuName}</option>
-				{menu.children && renderMenuOptions(menu.children, depth + 1)}
-			</React.Fragment>
+			<MenuItem key={menu.menuId} value={menu.menuId}>
+				{'--'.repeat(depth) + menu.menuName}
+			</MenuItem>
 		));
 	};
 
 	return (
-		<div>
+		<Box sx={{ p: 3 }}>
 			<h2>{menu ? 'Edit Menu' : 'Add Menu'}</h2>
 			<form onSubmit={handleSubmit}>
-				<div>
-					<label>Menu Name</label>
-					<input type="text" name="menuName" value={formData.menuName} onChange={handleChange} />
-				</div>
-				<div>
-					<label>Parent Menu</label>
-					<select name="parentMenuId" value={formData.parentMenuId} onChange={handleChange}>
-						<option value="">No Parent</option>
+				<FormControl fullWidth margin="normal">
+					<TextField label="Menu Name" variant="outlined" name="menuName" value={formData.menuName} onChange={handleChange} />
+				</FormControl>
+				<FormControl fullWidth margin="normal">
+					<InputLabel id="parent-menu-label">Parent Menu</InputLabel>
+					<Select labelId="parent-menu-label" name="parentMenuId" value={formData.parentMenuId} label="Parent Menu" onChange={handleChange}>
+						<MenuItem value="">No Parent</MenuItem>
 						{renderMenuOptions(menus)}
-					</select>
-				</div>
-				<div>
-					<label>Menu Sequence</label>
-					<input type="text" name="menuSeq" value={formData.menuSeq} onChange={handleChange} />
-				</div>
-				<div>
-					<label>Menu Path</label>
-					<input type="text" name="menuPath" value={formData.menuPath} onChange={handleChange} />
-				</div>
-				<div>
-					<label>Path Name</label>
-					<input type="text" name="pathName" value={formData.pathName} onChange={handleChange} />
-				</div>
-				<button type="submit">{menu ? 'Update Menu' : 'Add Menu'}</button>
+					</Select>
+				</FormControl>
+				<FormControl fullWidth margin="normal">
+					<TextField label="Menu Sequence" variant="outlined" name="menuSeq" value={formData.menuSeq} onChange={handleChange} />
+				</FormControl>
+				<FormControl fullWidth margin="normal">
+					<TextField label="Menu Path" variant="outlined" name="menuPath" value={formData.menuPath} onChange={handleChange} />
+				</FormControl>
+				<FormControl fullWidth margin="normal">
+					<TextField label="Path Name" variant="outlined" name="pathName" value={formData.pathName} onChange={handleChange} />
+				</FormControl>
+				<Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>
+					{menu ? 'Update Menu' : 'Add Menu'}
+				</Button>
 			</form>
-		</div>
+		</Box>
 	);
 };
 

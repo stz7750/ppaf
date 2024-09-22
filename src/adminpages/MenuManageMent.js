@@ -17,6 +17,7 @@ import { log, stzUtil } from '../commons/stzUtil';
 import MaterialTable from 'material-table';
 import { Switch, Grid, IconButton } from '@mui/material';
 import { KeyboardArrowRight, KeyboardArrowDown, Delete, Search, Clear } from '@mui/icons-material';
+import GlobalAlert from '../commons/GlobalAlert';
 
 const MenuManagement = () => {
 	const [menus, setMenus] = useState([]);
@@ -53,9 +54,9 @@ const MenuManagement = () => {
 
 	const handleFormSubmit = async menu => {
 		if (menu.menuId) {
-			await axios.put(`/admin/api/${menu.menuId}`, menu);
+			await trans.post(`/admin/api/upsertMenuById`, menu);
 		} else {
-			await axios.post('/admin/api', menu);
+			await trans.post('/admin/api/upsertMenuById', menu);
 		}
 		fetchMenus();
 		setSelectedMenu(null);
@@ -133,6 +134,7 @@ const MenuManagement = () => {
 					</div>
 				</Grid>
 			</Grid>
+			<GlobalAlert level={'info'} message={'test'} />
 		</div>
 	);
 };

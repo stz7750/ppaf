@@ -11,6 +11,27 @@ trans.post = (url, data, config) => trans.request({ ...config, method: 'post', u
 trans.put = (url, data, config) => trans.request({ ...config, method: 'put', url, data });
 trans.delete = (url, config) => trans.request({ ...config, method: 'delete', url });
 
+trans.interceptors.request.use(
+	config => {
+		if (config.url === '/api/login') {
+			const formData = new URLSearchParams();
+
+			// data 객체를 순회하며 URLSearchParams로 변환
+			for (const key in config.data) {
+				formData.append(key, config.data[key]);
+			}
+
+			// 데이터를 URLSearchParams로 변환 후 헤더에 Content-Type 설정
+			config.data = formData;
+			config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+		}
+		return config;
+	},
+	error => {
+		// 요청 실패 처리
+		return Promise.reject(error);
+	}
+);
 // 응답 인터셉터 추가
 trans.interceptors.response.use(
 	response => {

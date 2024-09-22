@@ -7,7 +7,8 @@ import { useLocation } from 'react-router-dom';
 function CommonLayout({ children }) {
 	const location = useLocation();
 
-	const notR = location.pathname === '/';
+	const notR = location.pathname === '/login';
+	const gisPage = location.pathname.includes('Map');
 
 	return (
 		<>
@@ -15,7 +16,7 @@ function CommonLayout({ children }) {
 				<div>
 					<Navigation />
 					<div className="container d-flex">
-						<Sidebar />
+						{!gisPage && <Sidebar />}
 						<main className="flex-grow-1">{children}</main>
 					</div>
 					<Footer />

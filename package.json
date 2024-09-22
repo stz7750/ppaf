@@ -23,6 +23,7 @@
     "css-loader": "^6.10.0",
     "material-table": "1.69.3",
     "node-sass": "^7.0.3",
+    "ol": "^10.1.0",
     "react": "^18.2.0",
     "react-big-calendar": "^1.9.1",
     "react-bootstrap": "^2.10.1",

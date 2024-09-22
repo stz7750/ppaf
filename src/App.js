@@ -18,6 +18,8 @@ import Spinner from './commons/Spinner';
 import CommonLayout from './layout/CommonLayout';
 import MenuManagement from './adminpages/MenuManageMent';
 import ExampleComponents from './pages/ExampleComponents';
+import OlMap from './adminpages/OlMap';
+import OlMap2 from './adminpages/OlMap2';
 
 function usePageLoading() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +46,7 @@ function AppWithRouter() {
 			<CommonLayout>
 				{isLoading && <Spinner />}
 				<Routes>
-					<Route path="/" element={<Login />} />
+					<Route path="/login" element={<Login />} />
 					<Route path="/join" element={<Join />} />
 					<Route path="/Toast" element={<Toast></Toast>} />
 					<Route path="/Calendar" element={<Calendar></Calendar>} />
@@ -54,6 +56,8 @@ function AppWithRouter() {
 					<Route path="/admin/main2" element={<Admins />} />
 					<Route path="/admin/Event" element={<RegEvent />} />
 					<Route path="/admin/MenuManageMent" element={<MenuManagement />} />
+					<Route path={'/admin/olMap'} element={<OlMap />} />
+					<Route path={'/admin/olMap2'} element={<OlMap2 />} />
 					{/* 공통 컴포넌트들을 사용할 페이지*/}
 					<Route path={'/ExampleComponentes'} element={<ExampleComponents />} />
 				</Routes>

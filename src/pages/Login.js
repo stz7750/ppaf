@@ -49,7 +49,7 @@ function Login() {
 		form.append('username', id);
 		form.append('password', password);
 		try {
-			const response = await trans.post('/api/login', form);
+			const response = await trans.post('/api/login', { username: id, password });
 			if (response.data) {
 				console.log(response.data, '지금부터 여기 이용');
 				localStorage.setItem('authToken', response.data.accessToken);
@@ -57,7 +57,6 @@ function Login() {
 					login({
 						id,
 						pw: password,
-						role: response.data.role,
 					})
 				);
 				navigate('/main');
@@ -102,9 +101,8 @@ function Login() {
 									required
 									fullWidth
 									id="username"
-									label="Email Address"
+									label="아이디"
 									name="username"
-									autoComplete="email"
 									autoFocus
 									value={id}
 									onChange={e => setId(e.target.value)}
@@ -127,7 +125,7 @@ function Login() {
 									required
 									fullWidth
 									name="password"
-									label="Password"
+									label="비밀번호"
 									type="password"
 									id="password"
 									autoComplete="current-password"
@@ -190,10 +188,9 @@ function Login() {
 									margin="normal"
 									required
 									fullWidth
-									id="signUpUsername"
+									id="id"
 									label="Email Address"
-									name="signUpUsername"
-									autoComplete="email"
+									name="id"
 									autoFocus
 									InputProps={{
 										style: {
