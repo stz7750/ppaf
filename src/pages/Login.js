@@ -88,7 +88,7 @@ function Login() {
 									국제 설치류 보호 단체
 								</Typography>
 								<Button variant="outlined" color="inherit" className="press-start-2p-regular" sx={{ mt: 3 }} onClick={toggleSignUp}>
-									계정이 없으신가요? 가입하기
+									계정이 이미 있으신가요? 로그인 하기
 								</Button>
 							</>
 						) : (
@@ -176,7 +176,7 @@ function Login() {
 									환영해!
 								</Typography>
 								<Button variant="outlined" color="inherit" className="press-start-2p-regular" sx={{ mt: 3 }} onClick={toggleSignUp}>
-									로그인
+									가입
 								</Button>
 							</>
 						) : (
