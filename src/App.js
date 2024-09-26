@@ -18,8 +18,7 @@ import Spinner from './commons/Spinner';
 import CommonLayout from './layout/CommonLayout';
 import MenuManagement from './adminpages/MenuManageMent';
 import ExampleComponents from './pages/ExampleComponents';
-import OlMap from './adminpages/OlMap';
-import OlMap2 from './adminpages/OlMap2';
+import OlMap from './adminpages/openLayers/OlMap';
 
 function usePageLoading() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +56,6 @@ function AppWithRouter() {
 					<Route path="/admin/Event" element={<RegEvent />} />
 					<Route path="/admin/MenuManageMent" element={<MenuManagement />} />
 					<Route path={'/admin/olMap'} element={<OlMap />} />
-					<Route path={'/admin/olMap2'} element={<OlMap2 />} />
 					{/* 공통 컴포넌트들을 사용할 페이지*/}
 					<Route path={'/ExampleComponentes'} element={<ExampleComponents />} />
 				</Routes>
