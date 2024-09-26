@@ -5,6 +5,10 @@ const trans = axios.create({
 	baseURL: 'http://localhost:8888',
 });
 
+const osrm = axios.create({
+	baseURL: 'http://localhost:5001/route/v1/driving/126.9784,37.5665;127.0366,37.5506?overview=false',
+});
+
 // axios의 이름 변경
 trans.get = (url, config) => trans.request({ ...config, method: 'get', url });
 trans.post = (url, data, config) => trans.request({ ...config, method: 'post', url, data });

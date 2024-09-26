@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import 'ol/ol.css'; // OpenLayers 기본 CSS
 import { Map as OLMap, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import { fromLonLat, toLonLat } from 'ol/proj'; // 좌표 변환을 위한 함수
-import { Box, TextField, Button, Typography, Grid, IconButton, Drawer, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Box, TextField, Button, Grid, ToggleButton, ToggleButtonGroup, Autocomplete } from '@mui/material';
 import trans from '../../commons/trans';
 import { MdLocationOn } from 'react-icons/md'; // React Icons
 import VectorLayer from 'ol/layer/Vector'; // 벡터 레이어
@@ -22,14 +21,22 @@ import { Popover } from 'bootstrap';
 import { XYZ } from 'ol/source';
 import MapPosition from './MapPosition';
 import Geolocation from 'ol/Geolocation.js';
-import CircleStyle from 'ol/style/Circle'; // 위치 트래킹
+import CircleStyle from 'ol/style/Circle';
+import tileLayer from 'bootstrap/js/src/dom/event-handler'; // 위치 트래킹
+import geolocation from 'ol/Geolocation';
+import proj4 from 'proj4';
+import { register } from 'ol/proj/proj4';
+import popover from 'bootstrap/js/src/popover';
+
+// EPSG:5187 좌표계 등록
+proj4.defs('EPSG:5187', '+proj=tmerc +lat_0=38 +lon_0=127.5 +k=1 +x_0=200000 +y_0=500000 +ellps=GRS80 +units=m +no_defs');
+register(proj4); // OpenLayers에 proj4 등록
 
 const OlMap = () => {
 	const mapRef = useRef(null); // 지도를 그릴 div 요소 참조
 	const [mapObject, setMapObject] = useState(null); // OpenLayers 맵 객체 상태 저장
 	const [isMapInitialized, setIsMapInitialized] = useState(false); // 맵 초기화 여부
 	const [sigKorNm, setSigKorNm] = useState(''); // 시/구 이름
-	const [dong, setDong] = useState(''); // 동 이름
 	const [bunji, setBunji] = useState(''); // 번지 이름
 	const [searchResult, setSearchResult] = useState(null); // 검색 결과 좌표
 	const [mode, setMode] = useState('address'); // 모드 상태: 'address' 또는 'route'
@@ -39,6 +46,13 @@ const OlMap = () => {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Drawer 상태 관리
 	const [userLocation, setUserLocation] = useState(null); // 사용자 위치를 상태로 관리
 	const [mouseCoordinates, setMouseCoordinates] = useState({ longitude: null, latitude: null });
+	const [start, setStart] = useState([127.0602, 37.5665]);
+	const [end, setEnd] = useState([126.92114552445851, 37.621679907134705]);
+	const [allAddressData, setAllAddressData] = useState([]); // 서버에서 받아온 모든 주소 데이터
+	const [startSigKorNm, setStartSigKorNm] = useState(''); // 출발지 시/구
+	const [startBunji, setStartBunji] = useState(''); // 출발지 번지
+	const [endSigKorNm, setEndSigKorNm] = useState(''); // 도착지 시/구
+	const [endBunji, setEndBunji] = useState(''); // 도착지 번지
 
 	// 아이콘을 Data URI로 변환하는 함수
 	const convertIconToDataURI = () => {
@@ -53,7 +67,6 @@ const OlMap = () => {
 	});
 	// 지도 초기화 함수
 	const initMakeMapFnc = () => {
-		// 맵이 초기화되지 않았고, mapRef.current가 존재할 때만 초기화
 		if (!isMapInitialized && mapRef.current) {
 			// 벡터 소스 및 벡터 레이어 생성 (마커 추가할 용도)
 			const vectorSource = new VectorSource();
@@ -76,16 +89,6 @@ const OlMap = () => {
 				],
 				view: view,
 			});
-
-			// 마커 클릭 이벤트 추가
-			map.on('singleclick', function (evt) {
-				map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-					// 마커를 클릭했을 때 해당 마커의 속성 정보를 표시
-					const props = feature.getProperties(); // 모든 속성 가져오기
-					console.log(props); // 확인을 위해 속성 전체 출력
-					alert(`위치 정보: 경도 ${props.longitude}, 위도 ${props.latitude}, 기타 정보: ${props.info || '정보 없음'}`);
-				});
-			});
 			const popup = new Overlay({
 				element: document.getElementById('popup'),
 			});
@@ -101,7 +104,7 @@ const OlMap = () => {
 				coordinateFormat: createStringXY(4),
 				projection: 'EPSG:4326',
 				className: 'custom-mouse-position',
-				target: null, // We don't need a DOM element, we'll update state
+				target: null,
 			});
 
 			map.addControl(mousePositionControl);
@@ -109,7 +112,6 @@ const OlMap = () => {
 				const coords = toLonLat(evt.coordinate);
 				setMouseCoordinates({ longitude: coords[0], latitude: coords[1] });
 			});
-
 			const element = popup.getElement();
 			map.on('click', function (evt) {
 				const coordinate = evt.coordinate;
@@ -129,27 +131,97 @@ const OlMap = () => {
 				});
 				popover.show();
 			});
-
-			setMapObject(map); // 맵 객체 저장
-			setIsMapInitialized(true); // 맵 초기화 완료 상태로 설정
+			setMapObject(map);
 			setVectorSource(vectorSource);
+			setIsMapInitialized(true);
 		}
 	};
 
 	useEffect(() => {
-		// mapRef가 업데이트될 때마다 지도를 한 번만 초기화
-		if (!isMapInitialized) {
-			let cnt = 0;
-			cnt++;
-			console.log(cnt);
+		if (!isMapInitialized && mapRef.current) {
 			initMakeMapFnc();
 		}
-	}, [isMapInitialized]); // mapRef가 업데이트될 때 실행
+	}, [isMapInitialized]);
+
+	useEffect(() => {
+		const fetchAllAddresses = async () => {
+			try {
+				const response = await trans.get('admin/api/getAllAddrNm');
+				if (response.data && response.data.length > 0) {
+					setAllAddressData(
+						response.data.map(item => ({
+							addr: item.addr,
+							gid: item.gid,
+						}))
+					);
+				}
+				console.log(response.data);
+			} catch (error) {
+				console.error('주소 데이터를 가져오는 데 실패했습니다:', error);
+			}
+		};
+
+		fetchAllAddresses();
+	}, []);
+
+	const mousePositionControl = new MousePosition({
+		coordinateFormat: createStringXY(4),
+		projection: 'EPSG:4326',
+		// comment the following two lines to have the mouse position
+		// be placed within the map.
+		className: 'custom-mouse-position',
+		target: document.getElementById('mouse-position'),
+	});
+
+	const overviewMapControl = new OverviewMap({
+		// see in overviewmap-custom.html to see the custom CSS used
+		className: 'ol-overviewmap ol-custom-overviewmap',
+		layers: [
+			new TileLayer({
+				source: new OSM(),
+			}),
+		],
+		collapseLabel: '\u00BB',
+		label: '\u00AB',
+		collapsed: false,
+	});
+
+	const handleUserLocation = () => {
+		if (navigator.geolocation) {
+			navigator.geolocation.watchPosition(
+				position => {
+					const { latitude, longitude } = position.coords;
+					const coords = fromLonLat([longitude, latitude]);
+					setUserLocation(coords); // 사용자 위치 업데이트
+				},
+				error => {
+					console.error('위치 정보를 가져오는 데 실패했습니다:', error);
+				},
+				{
+					enableHighAccuracy: true,
+					timeout: 5000,
+					maximumAge: 0,
+				}
+			);
+		}
+	};
+
+	// 실시간 위치가 업데이트될 때마다 마커를 추가
+	useEffect(() => {
+		if (userLocation && vectorSource) {
+			addMarker(userLocation, '사용자의 현재 위치');
+		}
+	}, [userLocation, vectorSource]);
+
+	const filteredOptions = useMemo(() => {
+		if (startPoint === '') return allAddressData;
+		return allAddressData.filter(item => item.addr.toLowerCase().includes(startPoint.toLowerCase()));
+	}, [startPoint, allAddressData]);
 
 	const handleSearch = useCallback(async () => {
 		try {
 			const response = await trans.get(`admin/api/getAddr`, {
-				params: { sigKorNm, dong, bunji },
+				params: { sigKorNm, bunji },
 			});
 
 			// API 응답 데이터 확인
@@ -203,150 +275,6 @@ const OlMap = () => {
 		}
 	}, [mapObject, sigKorNm, bunji]);
 
-	// Drawer 열고 닫기 제어
-	const toggleDrawer = open => () => {
-		setIsDrawerOpen(open);
-	};
-
-	/*// 사용자의 위치를 가져오는 함수
-	const handleUserLocation = () => {
-		if (navigator.geolocation) {
-			// 0.3초마다 위치를 가져오는 인터벌 설정
-			const intervalId = setInterval(() => {
-				navigator.geolocation.getCurrentPosition(
-					position => {
-						const { latitude, longitude } = position.coords;
-						console.log(`현재 위치: 위도 ${latitude}, 경도 ${longitude}`);
-						const coords = fromLonLat([longitude, latitude]); // 좌표 변환
-
-						if (mapObject) {
-							const view = mapObject.getView();
-							console.log('지도 중심을 업데이트합니다:', coords);
-							view.setCenter(coords);
-							view.setZoom(16); // 줌 레벨 조정
-
-							// 벡터 소스를 가져와서 마커(Feature)를 추가
-							const vectorSource = mapObject.getLayers().item(1).getSource();
-
-							// 기존 마커 제거
-							vectorSource.clear();
-
-							// 새로운 마커(Feature) 생성
-							const marker = new Feature({
-								geometry: new Point(coords), // 마커의 좌표
-								longitude, // 경도 정보
-								latitude, // 위도 정보
-								info: '사용자의 현재 위치', // 기타 추가 정보
-							});
-
-							// 마커 스타일 설정 (React Icon을 Data URI로 변환 후 이미지로 사용)
-							const iconDataURI = convertIconToDataURI();
-							marker.setStyle(
-								new Style({
-									image: new Icon({
-										src: iconDataURI, // Data URI로 변환된 아이콘 사용
-										anchor: [0.5, 1],
-										scale: 1, // 아이콘 크기 조정
-									}),
-								})
-							);
-
-							console.log('마커를 추가합니다:', marker);
-							// 벡터 소스에 마커 추가
-							vectorSource.addFeature(marker);
-						}
-					},
-					error => {
-						console.error('위치 정보를 가져오는 데 실패했습니다:', error);
-						alert(`오류 발생: ${error.message}`);
-					},
-					{
-						enableHighAccuracy: true,
-						timeout: 5000,
-						maximumAge: 0,
-					}
-				);
-			}, 300); // 300ms마다 위치 정보를 가져옴
-
-			// 컴포넌트가 언마운트되면 인터벌을 해제하여 위치 추적을 중지
-			return () => {
-				clearInterval(intervalId);
-			};
-		} else {
-			alert('이 브라우저에서는 Geolocation API를 지원하지 않습니다.');
-		}
-	};*/
-
-	const mousePositionControl = new MousePosition({
-		coordinateFormat: createStringXY(4),
-		projection: 'EPSG:4326',
-		// comment the following two lines to have the mouse position
-		// be placed within the map.
-		className: 'custom-mouse-position',
-		target: document.getElementById('mouse-position'),
-	});
-
-	const overviewMapControl = new OverviewMap({
-		// see in overviewmap-custom.html to see the custom CSS used
-		className: 'ol-overviewmap ol-custom-overviewmap',
-		layers: [
-			new TileLayer({
-				source: new OSM(),
-			}),
-		],
-		collapseLabel: '\u00BB',
-		label: '\u00AB',
-		collapsed: false,
-	});
-
-	// 토글 버튼 핸들러
-	const handleModeChange = (event, newMode) => {
-		if (newMode !== null) {
-			setMode(newMode);
-		}
-	};
-
-	// 경로 표시 함수
-	const drawRoute = useCallback(async () => {
-		if (startPoint && endPoint) {
-			try {
-				// 예시로 두 점을 사용하여 임의의 경로를 그립니다.
-				const startCoords = fromLonLat([127.0602, 37.5665]); // 출발지점 좌표 (동대문ㄱ)
-				const endCoords = fromLonLat([126.92114552445851, 37.621679907134705]); // 도착지점 좌표 (은평구)
-
-				const route = new LineString([startCoords, endCoords]);
-				const routeFeature = new Feature({
-					geometry: route,
-				});
-				console.log(startCoords, endCoords);
-				routeFeature.setStyle(
-					new Style({
-						stroke: new Stroke({
-							color: '#ffcc33',
-							width: 4,
-						}),
-					})
-				);
-
-				if (vectorSource) {
-					vectorSource.clear(); // 이전 마커와 경로 제거 (vectorSource가 존재할 경우에만)
-				}
-				console.log(routeFeature);
-				console.log(vectorSource);
-				vectorSource.addFeature(routeFeature); // 경로 추가
-
-				// 출발지점과 도착지점에 마커 추가
-				addMarker(startCoords, '출발지점');
-				addMarker(endCoords, '도착지점');
-			} catch (error) {
-				console.error('경로를 가져오는 데 실패했습니다:', error);
-			}
-		} else {
-			alert('none');
-		}
-	}, [startPoint, endPoint, vectorSource]);
-
-	// 마커 추가 함수
 	const addMarker = (coords, info) => {
 		const marker = new Feature({
 			geometry: new Point(coords),
@@ -369,107 +297,179 @@ const OlMap = () => {
 
 		vectorSource.addFeature(marker); // 마커 추가
 	};
+	const handleModeChange = (event, newMode) => {
+		if (newMode !== null) {
+			setMode(newMode);
+		}
+	};
+	// 경로 요청 함수
+	const getRoute = async (start, end) => {
+		const url = `http://localhost:5001/route/v1/walking/${start[0]},${start[1]};${end[0]},${end[1]}?overview=full&geometries=geojson`;
 
-	// 실시간 사용자 위치 추적
-	const handleUserLocation = () => {
-		if (navigator.geolocation) {
-			navigator.geolocation.watchPosition(
-				position => {
-					const { latitude, longitude } = position.coords;
-					const coords = fromLonLat([longitude, latitude]);
-					setUserLocation(coords); // 사용자 위치 업데이트
-				},
-				error => {
-					console.error('위치 정보를 가져오는 데 실패했습니다:', error);
-				},
-				{
-					enableHighAccuracy: true,
-					timeout: 5000,
-					maximumAge: 0,
-				}
+		try {
+			const response = await trans.get(url); // axios 요청을 trans.js를 통해 보냄
+			if (response.data.code === 'Ok') {
+				console.log(response.data.routes[0].geometry.coordinates);
+				return response.data.routes[0].geometry.coordinates;
+			}
+		} catch (error) {
+			console.error('경로를 가져오는 데 실패했습니다:', error);
+			return null;
+		}
+	};
+	const drawRouteOnMap = useCallback(
+		routeCoordinates => {
+			const transformedCoordinates = routeCoordinates.map(coord => fromLonLat(coord)); // 좌표 변환
+			const lineString = new LineString(transformedCoordinates);
+
+			const routeFeature = new Feature({
+				geometry: lineString,
+			});
+
+			routeFeature.setStyle(
+				new Style({
+					stroke: new Stroke({
+						color: '#ffcc33', // 경로 선 색
+						width: 4, // 경로 선 두께
+					}),
+				})
 			);
+
+			vectorSource.clear(); // 기존 경로 제거
+			vectorSource.addFeature(routeFeature); // 경로 추가
+		},
+		[vectorSource]
+	);
+
+	const disabledPopover = () => {
+		const popup = new Overlay({
+			element: document.getElementById('popup'),
+		});
+		const element = popup.getElement();
+		let popover = Popover.getInstance(element);
+		if (popover) {
+			popover.dispose();
 		}
 	};
 
-	// 실시간 위치가 업데이트될 때마다 마커를 추가
-	useEffect(() => {
-		if (userLocation && vectorSource) {
-			addMarker(userLocation, '사용자의 현재 위치');
+	// 경로 검색 버튼 클릭 시 실행
+	const handleRouteSearch = useCallback(async () => {
+		const params = {
+			startSigKorNm,
+			startBunji,
+			endSigKorNm,
+			endBunji,
+		};
+		console.log(params);
+		try {
+			const response = await trans.get('admin/api/getAllAddrNm', {
+				params: {
+					startSigKorNm,
+					startBunji,
+					endSigKorNm,
+					endBunji,
+				},
+			});
+			console.log(response.data); // API 응답 데이터
+			const startCoordinates = [response.data[0].longitude, response.data[0].latitude];
+			const endCoordinates = [response.data[1].longitude, response.data[1].latitude];
+
+			setStart(startCoordinates);
+			setEnd(endCoordinates);
+		} catch (error) {
+			console.error('경로를 가져오는 데 실패했습니다:', error);
+			return null;
 		}
-	}, [userLocation, vectorSource]);
+		const routeCoordinates = await getRoute(start, end);
+		console.log(routeCoordinates);
+		if (routeCoordinates) {
+			drawRouteOnMap(routeCoordinates);
+		}
+	}, [start, end, mapObject, startSigKorNm, startBunji, endSigKorNm, endBunji]);
 
 	return (
-		<Box sx={{ p: 3 }}>
-			{/* 메뉴 버튼 추가하여 사이드바 열기 */}
-			<IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)} sx={{ mb: 2 }}>
-				<MenuIcon />
-			</IconButton>
-
-			{/* 지도 렌더링 박스 */}
-			<Box id="mapBox" ref={mapRef} sx={{ width: '100%', height: '500px', border: '1px solid #ccc', mt: 2 }}></Box>
-
-			<Drawer anchor="left" open={isDrawerOpen} onClose={toggleDrawer(false)}>
-				<Box role="presentation" sx={{ width: 250, padding: 2 }}>
-					{/* 모드 전환 토글 버튼 */}
-					<ToggleButtonGroup value={mode} exclusive onChange={handleModeChange} aria-label="지도 모드 선택" sx={{ mb: 2 }}>
-						<ToggleButton value="address">주소 검색</ToggleButton>
-						<ToggleButton value="route">길찾기</ToggleButton>
-					</ToggleButtonGroup>
-
-					<Grid container spacing={2}>
-						{mode === 'address' ? (
-							<>
-								<Grid item xs={12}>
-									<TextField
-										label="시/구"
-										variant="outlined"
-										fullWidth
-										value={sigKorNm}
-										onChange={e => setSigKorNm(e.target.value)}
-										placeholder="서울특별시 종로구 **동"
-									/>
-								</Grid>
-								<Grid item xs={12}>
-									<TextField label="번지" variant="outlined" fullWidth value={bunji} onChange={e => setBunji(e.target.value)} placeholder="번지" />
-								</Grid>
-								<Grid item xs={12}>
-									<Button variant="contained" color="primary" fullWidth onClick={handleSearch}>
-										검색
-									</Button>
-								</Grid>
-							</>
-						) : (
-							<>
-								<Grid item xs={12}>
-									<TextField
-										label="출발지"
-										variant="outlined"
-										fullWidth
-										value={startPoint}
-										onChange={e => setStartPoint(e.target.value)}
-										placeholder="출발지 입력"
-									/>
-								</Grid>
-								<Grid item xs={12}>
-									<TextField label="도착지" variant="outlined" fullWidth value={endPoint} onChange={e => setEndPoint(e.target.value)} placeholder="도착지 입력" />
-								</Grid>
-								<Grid item xs={12}>
-									<Button variant="contained" color="primary" fullWidth onClick={drawRoute}>
-										경로 찾기
-									</Button>
-								</Grid>
-							</>
-						)}
-					</Grid>
-				</Box>
-			</Drawer>
-
-			{/* 지도 렌더링 박스 */}
-			{/*<Box id="mapBox" ref={mapRef} sx={{ width: '100%', height: '500px', border: '1px solid #ccc', mt: 2 }}></Box>*/}
+		<Box sx={{ display: 'flex', height: '100vh' }}>
+			{/* 검색 패널 */}
+			<Box
+				sx={{
+					width: '300px',
+					backgroundColor: 'white',
+					padding: 2,
+					borderRight: '1px solid #ccc',
+					boxShadow: 3,
+					height: '100%',
+					p: 3,
+				}}
+			>
+				<ToggleButtonGroup value={mode} exclusive onChange={handleModeChange} aria-label="지도 모드 선택" sx={{ mb: 2 }}>
+					<ToggleButton value="address">주소 검색</ToggleButton>
+					<ToggleButton value="route">길찾기</ToggleButton>
+					<ToggleButton value="myLocation" onClick={() => handleUserLocation()}>
+						내 위치
+					</ToggleButton>
+				</ToggleButtonGroup>
+				<Grid container spacing={2}>
+					{mode === 'address' ? (
+						<>
+							<Grid item xs={12}>
+								<TextField
+									label="시/구"
+									variant="outlined"
+									fullWidth
+									value={sigKorNm}
+									onChange={e => setSigKorNm(e.target.value)}
+									placeholder="서울특별시 종로구 **동"
+								/>
+							</Grid>
+							<Grid item xs={12}>
+								<TextField label="번지" variant="outlined" fullWidth value={bunji} onChange={e => setBunji(e.target.value)} placeholder="번지" />
+							</Grid>
+							<Grid item xs={12}>
+								<Button variant="contained" color="primary" fullWidth onClick={handleSearch}>
+									검색
+								</Button>
+							</Grid>
+						</>
+					) : (
+						<>
+							<Grid item xs={6}>
+								<TextField label="출발지" variant="outlined" fullWidth value={startSigKorNm} onChange={e => setStartSigKorNm(e.target.value)} />
+							</Grid>
+							<Grid item xs={6}>
+								<TextField label="번지" variant="outlined" fullWidth value={startBunji} onChange={e => setStartBunji(e.target.value)} />
+							</Grid>
+							{/* 도착지 입력 */}
+							<Grid item xs={6}>
+								<TextField label="도착지" variant="outlined" fullWidth value={endSigKorNm} onChange={e => setEndSigKorNm(e.target.value)} />
+							</Grid>
+							<Grid item xs={6}>
+								<TextField label="번지" variant="outlined" fullWidth value={endBunji} onChange={e => setEndBunji(e.target.value)} />
+							</Grid>
+							<Grid item xs={12}>
+								<Button variant="contained" color="primary" fullWidth onClick={handleRouteSearch}>
+									경로 찾기
+								</Button>
+							</Grid>
+						</>
+					)}
+				</Grid>
+			</Box>
+			<Box
+				ref={mapRef}
+				sx={{
+					flexGrow: 1,
+					height: '100%',
+					width: '100%',
+					border: '1px solid #ccc',
+				}}
+			/>
+			{/*<button onClick={handleUserLocation}>Click Me!</button>*/}
 			<MapPosition longitude={userLocation ? toLonLat(userLocation)[0] : null} latitude={userLocation ? toLonLat(userLocation)[1] : null} />
 			<div id="marker" title="Marker"></div>
 			<div id="popup"></div>
-			<button onClick={handleUserLocation}>Click Me!</button>
+			<div id={'geolocate'}>zz</div>
+			<div id={'geolocation_marker'}></div>
+			{/*<button onClick={handleUserLocation}>Click Me!</button>*/}
 		</Box>
 	);
 };

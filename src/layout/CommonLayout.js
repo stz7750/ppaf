@@ -15,10 +15,12 @@ function CommonLayout({ children }) {
 			{!notR ? (
 				<div>
 					<Navigation />
-					{!gisPage && <Sidebar />}
-					<main className="flex-grow-1" style={{ overflowY: 'auto', height: '100vh' }}>
-						{children}
-					</main>
+					<div className=" d-flex">
+						{!gisPage && <Sidebar />}
+						<main className="flex-grow-1" style={{ overflowY: 'auto', height: '400vh' }}>
+							{children}
+						</main>
+					</div>
 					{!gisPage && <Footer />}
 				</div>
 			) : (

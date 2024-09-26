@@ -15,7 +15,6 @@ import { Box, Typography } from '@mui/material';
 import { FaLocationArrow, FaMapMarkerAlt } from 'react-icons/fa'; // Importing React Icons for longitude and latitude
 
 const MapPosition = ({ longitude, latitude }) => {
-	console.log(longitude, latitude);
 	return (
 		<Box
 			sx={{
