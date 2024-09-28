@@ -1,36 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Nav } from 'react-bootstrap';
 import trans from '../commons/trans';
+import { stzUtil } from '../commons/stzUtil';
 
-function LeftSidebar() {
+function LeftSidebar({ data }) {
 	const [isSidebarOpen, setSidebarOpen] = useState(true);
 	const [menuData, setMenuData] = useState();
 	useEffect(() => {
-		(async () => {
-			try {
-				const response = await trans.get('admin/api/getMenu');
-				const menuData = response.data;
-				const menuTree = [];
-				const menuItemsMap = {};
-
-				// 메뉴 항목을 id를 키로 사용하는 맵으로 변환하여 접근성 향상
-				menuData.forEach(menu => {
-					menuItemsMap[menu.menu_id] = { ...menu, children: [] };
-				});
-
-				// 각 메뉴 항목에 대해 상위 메뉴가 있다면 그 메뉴의 자식으로, 없다면 최상위 메뉴로 처리
-				menuData.forEach(menu => {
-					if (menu.parent_menu_id) {
-						menuItemsMap[menu.parent_menu_id].children.push(menuItemsMap[menu.menu_id]);
-					} else {
-						menuTree.push(menuItemsMap[menu.menu_id]);
-					}
-					setMenuData(menuTree);
-				});
-			} catch (error) {
-				console.log(error);
-			}
-		})();
+		if (data) {
+			const menuTree = stzUtil.buildTree(data, 'menuId', 'parentMenuId');
+			setMenuData(menuTree);
+		}
 	}, []);
 	// 인라인 스타일 정의
 	const sidebarStyle = {
@@ -66,13 +46,13 @@ function LeftSidebar() {
 			<div style={sidebarStyle}>
 				<Nav defaultActiveKey="/home" className="flex-column" style={{ marginTop: '100px' }}>
 					{menuData?.map(item => (
-						<div key={item.menu_id}>
-							<Nav.Link href={`/${item.menu_path}`}>{item.menu_name}</Nav.Link>
+						<div key={item.menuId}>
+							<Nav.Link href={`/${item.menuPath}`}>{item.menuName}</Nav.Link>
 							{item.children.length > 0 && (
 								<div style={{ marginLeft: 20 }}>
 									{item.children.map(child => (
-										<Nav.Link key={child.menu_id} href={`/${child.menu_path}`}>
-											{child.menu_name}
+										<Nav.Link key={child.menuId} href={`/${child.menuPath}`}>
+											{child.menuName}
 										</Nav.Link>
 									))}
 								</div>

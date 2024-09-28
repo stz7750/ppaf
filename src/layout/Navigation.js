@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Navbar, Nav, Breadcrumb } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import userSlice, { logout } from '../redux/userSlice';
 import { useLocation } from 'react-router-dom';
 import Footer from './Footer';
 
-function Navigation(props) {
+function Navigation({ menu, children }) {
 	const naviStyle = {
 		zIndex: 10,
 	};
@@ -13,43 +13,42 @@ function Navigation(props) {
 	const dispatch = useDispatch();
 	const location = useLocation();
 	/* userId: userInfo.userId, accessToken: JSON.parse(localStorage.getItem('accessToken')).value  */
-	console.log(login);
+
+	useEffect(() => {
+		if (menu) {
+			// 현재 경로와 일치하는 메뉴 항목을 찾습니다.
+			const currentMenu = menu.find(item => location.pathname.includes(item.menuPath));
+			if (currentMenu) {
+				document.title = currentMenu.menuName; // 페이지 타이틀 설정
+			} else {
+				document.title = 'stz'; // 기본 타이틀
+			}
+		}
+	}, [menu, location.pathname]);
 	const logoutMemer = () => {
 		dispatch(logout());
 	};
-	console.log(props.children);
 	const createBreadcrumbItems = () => {
 		const paths = location.pathname.split('/').filter(x => x);
 		const breadcrumbItems = paths.map((path, index) => {
 			const href = '/' + paths.slice(0, index + 1).join('/');
-			const pathFormatter = '';
-			// eslint-disable-next-line default-case
-			/*  switch(path){
-                case 'main' :
-                    return pathFormatter += "메인";
-                    break;
-                case 'admin' :
-                    return pathFormatter += "관리";
-                    break;
-                case 'Event' :
-                    return pathFormatter += "이벤트";
-                    break;
-                case 'main2' :
-                    return pathFormatter += "사이트 관리";
-                    break;
-                case 'Calendar':
-                    return pathFormatter += "스케줄";
-                    break;
-            } */
+			const matchedMenu = menu?.find(item => item.menuPath === href);
+			const pathLabel = matchedMenu ? matchedMenu.menuName : decodeURIComponent(path);
 			const isActive = index === paths.length - 1;
+
 			return (
 				<Breadcrumb.Item key={href} href={href} active={isActive}>
-					{decodeURIComponent(path)}
-					{index < paths.length - 1 && ' < '} {/* 공백과 <를 추가 */}
+					{pathLabel}
+					{index < paths.length - 1}
 				</Breadcrumb.Item>
 			);
 		});
-		return [<Breadcrumb.Item key="home" href="/"></Breadcrumb.Item>, ...breadcrumbItems];
+		return [
+			<Breadcrumb.Item key="home" href="/">
+				홈
+			</Breadcrumb.Item>,
+			...breadcrumbItems,
+		];
 	};
 
 	return (
@@ -87,7 +86,7 @@ function Navigation(props) {
 			<Breadcrumb className="d-flex justify-content-end" style={{ backgroundColor: '#EBEBEB', marginBottom: '20px' }}>
 				{createBreadcrumbItems()}
 			</Breadcrumb>
-			<Container>{props.children}</Container>
+			<Container>{children}</Container>
 			<Footer />
 		</>
 	);

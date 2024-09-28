@@ -68,15 +68,15 @@ export const stzUtil = {
 		const childrenMap = {};
 
 		data.forEach(item => {
-			item[childrenKey] = [];
-			childrenMap[item[idKey]] = item;
+			const newItem = { ...item, [childrenKey]: [] }; // 객체 복사 후 children 추가
+			childrenMap[item[idKey]] = newItem;
 
 			if (!item[parentKey]) {
-				tree.push(item);
+				tree.push(newItem);
 			} else {
 				const parent = childrenMap[item[parentKey]];
 				if (parent) {
-					parent[childrenKey].push(item);
+					parent[childrenKey].push(newItem);
 				}
 			}
 		});

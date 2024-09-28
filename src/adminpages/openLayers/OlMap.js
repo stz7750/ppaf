@@ -4,7 +4,7 @@ import { Map as OLMap, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
 import { fromLonLat, toLonLat } from 'ol/proj'; // 좌표 변환을 위한 함수
-import { Box, TextField, Button, Grid, ToggleButton, ToggleButtonGroup, Autocomplete } from '@mui/material';
+import { Box, TextField, Button, Grid, ToggleButton, ToggleButtonGroup, Autocomplete, List, ListItem, ListSubheader, ListItemText } from '@mui/material';
 import trans from '../../commons/trans';
 import { MdLocationOn } from 'react-icons/md'; // React Icons
 import VectorLayer from 'ol/layer/Vector'; // 벡터 레이어
@@ -450,6 +450,32 @@ const OlMap = () => {
 									경로 찾기
 								</Button>
 							</Grid>
+							<List
+								sx={{
+									width: '100%',
+									maxWidth: 360,
+									bgcolor: 'text.secondary',
+									position: 'relative',
+									overflow: 'auto',
+									maxHeight: 300,
+									boxShadow: 0,
+									'& ul': { padding: 0 },
+								}}
+								subheader={<li />}
+							>
+								{[0, 1, 2, 3, 4].map(sectionId => (
+									<li key={`section-${sectionId}`}>
+										<ul>
+											<ListSubheader>{`I'm sticky ${sectionId}`}</ListSubheader>
+											{[0, 1, 2].map(item => (
+												<ListItem key={`item-${sectionId}-${item}`}>
+													<ListItemText primary={`Item ${item}`} />
+												</ListItem>
+											))}
+										</ul>
+									</li>
+								))}
+							</List>
 						</>
 					)}
 				</Grid>
