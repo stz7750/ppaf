@@ -3,8 +3,7 @@ import { Button, Nav } from 'react-bootstrap';
 import trans from '../commons/trans';
 import { stzUtil } from '../commons/stzUtil';
 
-function LeftSidebar({ data }) {
-	const [isSidebarOpen, setSidebarOpen] = useState(true);
+function LeftSidebar({ data, setSidebarOpen, isSidebarOpen }) {
 	const [menuData, setMenuData] = useState();
 	useEffect(() => {
 		if (data) {
@@ -16,12 +15,13 @@ function LeftSidebar({ data }) {
 	const sidebarStyle = {
 		position: 'fixed',
 		top: 0,
-		left: isSidebarOpen ? 0 : '-200px', // 사이드바 열림/닫힘 상태에 따른 좌표
+		left: isSidebarOpen ? 0 : '-200px',
 		bottom: 0,
 		width: '200px',
 		backgroundColor: '#f8f9fa',
 		overflowY: 'auto',
 		transition: 'left 0.3s',
+		zIndex: 5, // Lower than Navigation
 	};
 
 	const toggleButtonStyle = {
@@ -29,7 +29,7 @@ function LeftSidebar({ data }) {
 		top: '50%',
 		left: isSidebarOpen ? '200px' : '0px', // 버튼 위치 조정
 		transform: 'translateY(-50%)',
-		zIndex: 1500, // 사이드바보다 높게 설정하여 버튼이 항상 보이도록
+		zIndex: 0, // 사이드바보다 높게 설정하여 버튼이 항상 보이도록
 		cursor: 'pointer',
 	};
 

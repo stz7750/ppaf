@@ -1,15 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navigation from './Navigation';
 import Sidebar from './LeftSidebar';
 import Footer from './Footer';
 import { useLocation } from 'react-router-dom';
 import stz from '../commons/stzUtil';
 import { useGetDataQuery } from '../commons/RtkqGetApi';
+import { Box } from '@mui/material';
+
 function CommonLayout({ children }) {
 	const location = useLocation();
 
 	const notR = location.pathname === '/login';
 	const gisPage = location.pathname.includes('Map');
+	const [isSidebarOpen, setSidebarOpen] = useState(true);
 
 	const { data: menu, isLoading } = useGetDataQuery({ url: 'admin/api/getAllMenus', params: { useYn: 'Y' } });
 
@@ -18,11 +21,11 @@ function CommonLayout({ children }) {
 		<>
 			{!notR ? (
 				<div>
-					<Navigation menu={menu} />
+					<Navigation menu={menu} isSidebarOpen={isSidebarOpen} />
 					<div className=" d-flex">
-						{!gisPage && <Sidebar data={menu} />}
+						{!gisPage && <Sidebar data={menu} isSidebarOpen={isSidebarOpen} setSidebarOpen={setSidebarOpen} />}
 						<main className="flex-grow-1" style={{ overflowY: 'auto', height: '400vh' }}>
-							{children}
+							<Box padding={3}>{children}</Box>
 						</main>
 					</div>
 					{!gisPage && <Footer />}

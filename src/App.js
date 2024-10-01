@@ -19,6 +19,8 @@ import CommonLayout from './layout/CommonLayout';
 import MenuManagement from './adminpages/MenuManageMent';
 import ExampleComponents from './pages/ExampleComponents';
 import OlMap from './adminpages/openLayers/OlMap';
+import './Assets/custom.css';
+import './commons/stzUtil';
 
 function usePageLoading() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -49,9 +51,9 @@ function AppWithRouter() {
 					<Route path="/join" element={<Join />} />
 					<Route path="/Toast" element={<Toast></Toast>} />
 					<Route path="/Calendar" element={<Calendar></Calendar>} />
-					<Route path="/BigCalendar" element={<BigCalendar />} />
+					<Route path="admin/BigCalendar" element={<BigCalendar />} />
 					<Route path="/main" element={<Main />} />
-					<Route path="/admin/main" element={<Admin />} />
+					<Route path="/admin" element={<Admin />} />
 					<Route path="/admin/main2" element={<Admins />} />
 					<Route path="/admin/Event" element={<RegEvent />} />
 					<Route path="/admin/MenuManageMent" element={<MenuManagement />} />
