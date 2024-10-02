@@ -59,7 +59,7 @@ function AppWithRouter() {
 					<Route path="/admin/MenuManageMent" element={<MenuManagement />} />
 					<Route path={'/admin/olMap'} element={<OlMap />} />
 					{/* 공통 컴포넌트들을 사용할 페이지*/}
-					<Route path={'/ExampleComponentes'} element={<ExampleComponents />} />
+					<Route path={'/admin/ExampleComponentes'} element={<ExampleComponents />} />
 				</Routes>
 			</CommonLayout>
 		</>

@@ -12,8 +12,11 @@
 import React from 'react';
 import InputMaker from '../commons/InputMaker';
 import { FaSearchLocation } from 'react-icons/fa';
+import GlobalAlert from '../commons/GlobalAlert';
+import GlobalModal from '../commons/GlobalModal';
 
 const ExampleComponents = () => {
+	//ReadME : 각종 공통 컴포넌트 사용법을 작성합니다.
 	const inputOptions = [
 		{
 			type: 'text',
@@ -30,9 +33,16 @@ const ExampleComponents = () => {
 			icon: <FaSearchLocation />,
 		},
 	];
+
+	const alertInfo = {
+		level: 'info',
+		message: 'from TestComponet',
+	};
+
 	return (
 		<div>
 			<InputMaker opt={inputOptions} />
+			<GlobalAlert alertInfo={alertInfo} />
 		</div>
 	);
 };

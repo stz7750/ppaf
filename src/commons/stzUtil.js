@@ -153,6 +153,25 @@ export const stzUtil = {
 		return regex.test(dataString);
 	},
 	//TODO : password , Null Chk , remove Koean , remove Str , remove Num , Plus comma , remove comma
+	//ReadMe : 첫번째인자로 배열 또는 객체 인자값을 받습니다. 그리고 해당 값이 배열인지 객체인지의 대한 타입을 문자열로 보냅니다.
+	// 문자열로 보낸 첫번째 인자값이 빈 객체(배열) 인지 확인 후 맞으면 참, 틀리면 거짓을 리턴합니다.
+	isEmpty: (data, type) => {
+		switch (type) {
+			case 'obj':
+				if (data.constructor && Object.keys(data).length === 0) {
+					return true;
+				} else {
+					return false;
+				}
+				break;
+			case 'arr':
+				if (Array.isArray(data) && data.length === 0) {
+					return true;
+				} else {
+					return false;
+				}
+		}
+	},
 };
 
 export const log = message => {

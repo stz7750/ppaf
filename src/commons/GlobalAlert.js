@@ -11,8 +11,13 @@
  */
 import React, { useEffect, useState } from 'react';
 import { Snackbar, Alert, LinearProgress, Box } from '@mui/material';
+import { isEqual } from 'lodash';
 //README : 첫번째는 해당 내용이 되고 level은 alert의 중요도를 나타냅니다. 세번째는 alert의 표출 시간이 됩니다.
-const GlobalAlert = ({ message, level, duration = 6000 }) => {
+const GlobalAlert = ({ alertInfo }) => {
+	const message = alertInfo.message;
+	const level = alertInfo.level;
+	const duration = alertInfo.duration ? alertInfo.duration : 6000;
+	console.log(message, level);
 	const [open, setOpen] = useState(false);
 	const [progress, setProgress] = useState(0);
 
@@ -52,4 +57,6 @@ const GlobalAlert = ({ message, level, duration = 6000 }) => {
 	);
 };
 
-export default GlobalAlert;
+export default React.memo(GlobalAlert, (prevProps, nextProps) => {
+	return isEqual(prevProps, nextProps);
+});

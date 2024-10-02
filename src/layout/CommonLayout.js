@@ -3,7 +3,8 @@ import Navigation from './Navigation';
 import Sidebar from './LeftSidebar';
 import Footer from './Footer';
 import { useLocation } from 'react-router-dom';
-import stz from '../commons/stzUtil';
+import { stz } from '../commons/stzUtil';
+import { stzUtil } from '../commons/stzUtil';
 import { useGetDataQuery } from '../commons/RtkqGetApi';
 import { Box } from '@mui/material';
 
@@ -15,6 +16,12 @@ function CommonLayout({ children }) {
 	const [isSidebarOpen, setSidebarOpen] = useState(true);
 
 	const { data: menu, isLoading } = useGetDataQuery({ url: 'admin/api/getAllMenus', params: { useYn: 'Y' } });
+
+	useEffect(() => {
+		let result = stzUtil.isEmpty({}, 'obj');
+		console.log(result);
+		stz();
+	}, []);
 
 	if (isLoading) return null;
 	return (
