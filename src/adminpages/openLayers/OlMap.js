@@ -394,11 +394,9 @@ const OlMap = () => {
 				sx={{
 					width: '300px',
 					backgroundColor: 'white',
-					padding: 2,
 					borderRight: '1px solid #ccc',
 					boxShadow: 3,
 					height: '100%',
-					p: 3,
 				}}
 			>
 				<ToggleButtonGroup value={mode} exclusive onChange={handleModeChange} aria-label="지도 모드 선택" sx={{ mb: 2 }}>

@@ -55,7 +55,7 @@ function AppWithRouter() {
 					<Route path="/main" element={<Main />} />
 					<Route path="/admin" element={<Admin />} />
 					<Route path="/admin/main2" element={<Admins />} />
-					<Route path="/admin/Event" element={<RegEvent />} />
+					<Route path="/admin/RegEvent" element={<RegEvent />} />
 					<Route path="/admin/MenuManageMent" element={<MenuManagement />} />
 					<Route path={'/admin/olMap'} element={<OlMap />} />
 					{/* 공통 컴포넌트들을 사용할 페이지*/}

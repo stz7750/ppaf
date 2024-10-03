@@ -7,6 +7,10 @@ import Chart from 'chart.js/auto';
 import Navigation from '../layout/Navigation';
 import GlobalModal from '../commons/GlobalModal';
 import { stzUtil } from '../commons/stzUtil';
+import ChartMaker from '../commons/ChartMaker';
+import MaterialTable from 'material-table';
+import { FirstPage, LastPage, ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { TablePagination } from '@mui/material';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -36,6 +40,7 @@ function Admin(props) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [eventsPerPage] = useState(5); // 페이지 당 표시할 이벤트 수
 	const [show, setShow] = useState(false);
+	const [pieChartData, setPieChartData] = useState({});
 
 	const fetchEventData = async cno => {
 		try {
@@ -68,18 +73,38 @@ function Admin(props) {
 			console.error('에러 발생 여기:', error);
 		}
 	};
-	useEffect(() => {
-		console.log(`현재 페이지: ${currentPage}, 이벤트 총 개수: ${events.length}, 페이지당 이벤트 수: ${eventsPerPage}`);
-	}, [currentPage, events]);
+
+	const fetchPieData = async () => {
+		try {
+			const response = await trans.get('admin/api/getContentCnt');
+			const data = response.data;
+			console.log(data);
+			const pieData = {
+				labels: ['이벤트', '유저 수'],
+				datasets: [
+					{
+						data: [data[0].event_cnt, data[0].user_cnt],
+						backgroundColor: ['#36A2EB', '#FF6384'],
+						hoverBackgroundColor: ['#36A2EB', '#FF6384'],
+					},
+				],
+			};
+			setPieChartData(pieData);
+		} catch (error) {
+			console.error('파이 차트 데이터를 불러오는 중 에러 발생:', error);
+		}
+	};
 
 	useEffect(() => {
-		// 컴포넌트 마운트 시 데이터 로드
+		console.log(pieChartData);
+	}, [pieChartData]);
+	useEffect(() => {
 		const initData = async () => {
 			await fetchData(chartType);
 			await fetchEventData();
+			await fetchPieData();
 			setIsLoading(false);
 		};
-
 		initData();
 	}, []); // 의존성 배열을 빈 배열로 설정하여 컴포넌트 마운트 시 한 번만 호출
 
@@ -104,7 +129,7 @@ function Admin(props) {
 
 	return (
 		<>
-			<Container fluid style={{ maxHeight: '500px', overflowY: 'auto' }}>
+			<Container fluid style={{ maxHeight: '500px' }}>
 				<Row>
 					<Col md={6} className="mb-4">
 						<div className="d-flex flex-column">
@@ -119,50 +144,50 @@ function Admin(props) {
 									Yearly
 								</Button>
 							</div>
-							{/* 고정 너비를 제거하고 반응형 디자인 적용 */}
 							<div>
-								<Bar data={chartData} options={options} />
+								<ChartMaker type={'bar'} data={chartData} options={options} />
+							</div>
+						</div>
+					</Col>
+					<Col md={6} className="mb-4">
+						<div className="d-flex flex-column">
+							<div style={{ width: '100%', height: '340px' }}>
+								<ChartMaker
+									data={pieChartData}
+									type="pie"
+									options={{
+										plugins: {
+											legend: { position: 'top' },
+											title: { display: true, text: '이벤트 및 사용자 수' },
+										},
+									}}
+								/>
 							</div>
 						</div>
 					</Col>
 					<Col md={12}>
-						<h4 className="mb-3">이벤트</h4>
-						<Button onClick={() => setShow(true)}>열기</Button>
-						<Table striped bordered hover>
-							<thead>
-								<tr>
-									<th>#</th>
-									<th>이벤트명</th>
-									<th>등록 날짜</th>
-									<th>등록자</th>
-									<th>시작 날짜</th>
-									<th>종료 날짜</th>
-								</tr>
-							</thead>
-							<tbody>
-								{events.map(event => (
-									<tr key={event.eventId}>
-										<td>{event.eventId}</td>
-										<td>{event.title}</td>
-										<td>{stzUtil.dateFormatTs(event.regDt)}</td>
-										<td>{event.editor}</td>
-										<td>{event.bngnDt || '정보 없음'}</td> {/* 시작 날짜가 없는 경우 '정보 없음' 표시 */}
-										<td>{event.endDt || '정보 없음'}</td> {/* 종료 날짜가 없는 경우 '정보 없음' 표시 */}
-									</tr>
-								))}
-							</tbody>
-						</Table>
-						{/* <Pagination>
-                        {pageNumbers.map(number => (
-                            <Pagination.Item key={number} active={number === currentPage} onClick={() => paginate(number)}>
-                                {number}
-                            </Pagination.Item>
-                        ))}
-              </Pagination> */}
+						<Col md={12}>
+							<h4 className="mb-3">이벤트</h4>
+							<MaterialTable
+								title="이벤트"
+								columns={[
+									{ title: '이벤트명', field: 'title' },
+									{ title: '등록 날짜', field: 'regDt', render: rowData => stzUtil.dateFormatTs(rowData.regDt) },
+									{ title: '등록자', field: 'editor' },
+									{ title: '시작 날짜', field: 'bngnDt', render: rowData => rowData.bngnDt || '정보 없음' },
+									{ title: '종료 날짜', field: 'endDt', render: rowData => rowData.endDt || '정보 없음' },
+								]}
+								data={events}
+								options={{
+									search: true, //상단 검색
+									paging: true, //페이지네이션
+									filtering: true, //필터
+								}}
+							/>
+						</Col>
 					</Col>
 				</Row>
 			</Container>
-			<GlobalModal show={show} setShow={setShow} title={'모달 테스트'} data={{ data1: 'val1', data2: 'val2' }} />
 		</>
 	);
 }

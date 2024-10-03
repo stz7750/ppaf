@@ -18,9 +18,8 @@ function CommonLayout({ children }) {
 	const { data: menu, isLoading } = useGetDataQuery({ url: 'admin/api/getAllMenus', params: { useYn: 'Y' } });
 
 	useEffect(() => {
-		let result = stzUtil.isEmpty({}, 'obj');
-		console.log(result);
-		stz();
+		window.stzUtil = stzUtil;
+		window.stz = stz;
 	}, []);
 
 	if (isLoading) return null;

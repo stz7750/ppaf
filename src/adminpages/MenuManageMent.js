@@ -129,12 +129,11 @@ const MenuManagement = () => {
 					/>
 				</Grid>
 				<Grid item xs={4}>
-					<div style={{ height: '60vh', overflow: 'auto' }}>
+					<div>
 						<MenuForm menu={selectedMenu} onSubmit={handleFormSubmit} menus={menus} />
 					</div>
 				</Grid>
 			</Grid>
-			<GlobalAlert level={'info'} message={'test'} />
 		</div>
 	);
 };
