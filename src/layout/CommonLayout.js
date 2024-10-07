@@ -7,6 +7,7 @@ import { stz } from '../commons/stzUtil';
 import { stzUtil } from '../commons/stzUtil';
 import { useGetDataQuery } from '../commons/RtkqGetApi';
 import { Box } from '@mui/material';
+import { isEqual } from 'lodash';
 
 function CommonLayout({ children }) {
 	const location = useLocation();
@@ -43,4 +44,6 @@ function CommonLayout({ children }) {
 	);
 }
 
-export default CommonLayout;
+export default React.memo(CommonLayout, (prevProps, nextProps) => {
+	return isEqual(prevProps, nextProps);
+});

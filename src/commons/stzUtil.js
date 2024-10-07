@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2024. &copy; STZ. All rights reserved
+ */
+
 /**
  *packageName    : stz-
  * fileName       : stzUtil.js
@@ -12,9 +16,11 @@
 export const stzUtil = {
 	//ReadME : TimeStamp 형식의 인자값을 받아서 yyyy-mm-dd로 파싱합니다.
 	dateFormatTs: date => {
-		let formatDT = date.split('T');
-
-		return formatDT[0];
+		if (date && date.includes('T')) {
+			let formatDT = date.split('T');
+			return formatDT[0];
+		}
+		return date;
 	},
 
 	//ReadMe : 문자열 형식의 인자값을 받아서 yyyy.mm.dd로 리턴합니다.

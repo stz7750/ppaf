@@ -4,6 +4,7 @@ import persistReducer from 'redux-persist/es/persistReducer';
 import storage from 'redux-persist/lib/storage';
 import { RtkqGetApi } from '../commons/RtkqGetApi';
 import spinnerReducer from './spinnerSlice';
+import alertReducer from './alertSlice';
 
 const persistConfig = {
 	key: 'root',
@@ -16,6 +17,7 @@ export const store = configureStore({
 	reducer: {
 		spinner: spinnerReducer,
 		user: persistedReducer,
+		alerts: alertReducer,
 		[RtkqGetApi.reducerPath]: RtkqGetApi.reducer,
 	},
 	middleware: getDefaultMiddleware =>

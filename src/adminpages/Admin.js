@@ -9,8 +9,6 @@ import GlobalModal from '../commons/GlobalModal';
 import { stzUtil } from '../commons/stzUtil';
 import ChartMaker from '../commons/ChartMaker';
 import MaterialTable from 'material-table';
-import { FirstPage, LastPage, ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { TablePagination } from '@mui/material';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -96,9 +94,6 @@ function Admin(props) {
 	};
 
 	useEffect(() => {
-		console.log(pieChartData);
-	}, [pieChartData]);
-	useEffect(() => {
 		const initData = async () => {
 			await fetchData(chartType);
 			await fetchEventData();
@@ -107,26 +102,7 @@ function Admin(props) {
 		};
 		initData();
 	}, []); // 의존성 배열을 빈 배열로 설정하여 컴포넌트 마운트 시 한 번만 호출
-
-	useEffect(() => {
-		// chartType이 변경될 때마다 데이터를 다시 로드
-		fetchData(chartType);
-	}, [chartType]);
-
-	if (isLoading) {
-		return <div>Loading...</div>;
-	}
-	const indexOfLastEvent = currentPage * eventsPerPage;
-	const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-	const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
-
-	// 페이지 번호를 계산하기 위한 로직
-	const pageNumbers = [];
-	for (let i = 1; i <= Math.ceil(events.length / eventsPerPage); i++) {
-		pageNumbers.push(i);
-	}
-	const paginate = pageNumber => setCurrentPage(pageNumber);
-
+	if (isLoading) return null;
 	return (
 		<>
 			<Container fluid style={{ maxHeight: '500px' }}>

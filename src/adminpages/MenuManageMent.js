@@ -31,7 +31,6 @@ const MenuManagement = () => {
 		const response = await trans.get('/admin/api/getAllMenus');
 		/*const menuTree = stzUtil.buildTree(response.data, 'menuId', 'parentMenuId');*/
 		setMenus(response.data);
-		log(response.data);
 	};
 
 	const handleToggle = (node, toggled) => {
