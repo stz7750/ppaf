@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Line, Bar } from 'react-chartjs-2';
+
 import { Container, Row, Col, Button, Tabs, Tab, ListGroup, Table, Pagination } from 'react-bootstrap';
 import trans from '../commons/trans';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import Chart from 'chart.js/auto';
-import Navigation from '../layout/Navigation';
-import GlobalModal from '../commons/GlobalModal';
 import { stzUtil } from '../commons/stzUtil';
 import ChartMaker from '../commons/ChartMaker';
-import MaterialTable from 'material-table';
-
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+import TableMaker from '../commons/TableMaker';
+import { exportCSV } from '@mui/icons-material';
+import BtnMaker from '../commons/BtnMaker';
 
 export const options = {
 	responsive: true,
@@ -102,6 +98,30 @@ function Admin(props) {
 		};
 		initData();
 	}, []); // 의존성 배열을 빈 배열로 설정하여 컴포넌트 마운트 시 한 번만 호출
+	const currentEvents = events.slice(currentPage * eventsPerPage, (currentPage + 1) * eventsPerPage);
+	const tableMakerProps = {
+		data: currentEvents,
+		title: '이벤트 목록',
+		paginationProps: {
+			currentPage,
+			onChangePage: setCurrentPage,
+			rowsPerPage: eventsPerPage,
+			totalCount: events.length,
+			showSearch: true, // 검색 기능 활성화
+			showPagination: true, // 페이지네이션 기능 활성화
+			columns: [
+				{ title: '이벤트명', field: 'title' },
+				{ title: '등록 날짜', field: 'regDt', render: rowData => stzUtil.dateFormatTs(rowData.regDt) },
+				{ title: '등록자', field: 'editor' },
+				{ title: '시작 날짜', field: 'bngnDt', render: rowData => rowData.bngnDt || '정보 없음' },
+				{ title: '종료 날짜', field: 'endDt', render: rowData => rowData.endDt || '정보 없음' },
+			],
+		},
+		options: {
+			exportBtn: true,
+			exportIcon: <BtnMaker opt={{ type: 'download' }} />,
+		},
+	};
 	if (isLoading) return null;
 	return (
 		<>
@@ -144,22 +164,7 @@ function Admin(props) {
 					<Col md={12}>
 						<Col md={12}>
 							<h4 className="mb-3">이벤트</h4>
-							<MaterialTable
-								title="이벤트"
-								columns={[
-									{ title: '이벤트명', field: 'title' },
-									{ title: '등록 날짜', field: 'regDt', render: rowData => stzUtil.dateFormatTs(rowData.regDt) },
-									{ title: '등록자', field: 'editor' },
-									{ title: '시작 날짜', field: 'bngnDt', render: rowData => rowData.bngnDt || '정보 없음' },
-									{ title: '종료 날짜', field: 'endDt', render: rowData => rowData.endDt || '정보 없음' },
-								]}
-								data={events}
-								options={{
-									search: true, //상단 검색
-									paging: true, //페이지네이션
-									filtering: true, //필터
-								}}
-							/>
+							<TableMaker {...tableMakerProps} />
 						</Col>
 					</Col>
 				</Row>

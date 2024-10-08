@@ -185,23 +185,24 @@ export const stzUtil = {
 			delete copy[`${property}`];
 			return copy;
 		} else {
-			throw new Error('The object does not have PROPERTY');
+			throw new Error('object does not have PROPERTY');
 		}
 	},
 	//ReadME : 객체와 해당 객체에서 가져올 property의 key 값을 입력 받습니다. 해당 객체를 순회 후 해당 객체의 키 값으로 리턴을 합니다.
 	pick: (obj, property) => {
 		if (obj.hasOwnProperty(property)) {
-			Object.keys(obj).map(item => {
-				if (item === property) {
-					return {
-						/*	obj[item];*/
-					};
-				}
-			});
+			let { property, ...obj } = obj;
+			return obj;
+		} else {
+			throw new Error('Object does not have PROPERTY');
 		}
 	},
 	//ReadME : 객체의 falsy 한 값을 전부 제거 후 리턴합니다.
 	cleanFalsy: obj => {},
+	addComma: data => {},
+	removeComma: data => {},
+	removeKor: data => {},
+	nullChk: data => {},
 };
 
 export const log = message => {
